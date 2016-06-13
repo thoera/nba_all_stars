@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """
-A script to scrape wikipedia for each player who has ever been a NBA All-Star.
-There are two main objectives:
-    - to gather more data on the players ;
-    - to identify the guys drafted after 1990 (we will only keep them).
+This script scrapes wikipedia for each player who has ever been a NBA All-Star.
+The two main objectives are:
+    - gather more personnal data on the players ;
+    - identify the guys drafted after 1990.
 """
 
 # Import the libraries.
@@ -164,5 +164,5 @@ df = pd.concat([df, df2], axis=1)
 df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")
 
 # Save it.
-df.to_csv(r"..\R\nba_all_stars\nba_all_stars_info.csv", sep=";", header=True,
-          index_label="player", encoding="utf-8")
+# df.to_csv(r"..\R\nba_all_stars\nba_all_stars_info.csv", sep=";",
+#           header=True, index_label="player", encoding="utf-8")
