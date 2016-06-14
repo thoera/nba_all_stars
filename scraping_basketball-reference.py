@@ -30,6 +30,9 @@ players_error_date = []
 
 for player in players:
     print(player)
+    # Build the url from the name and the firstname of the player.
+    # The pattern we use is the following: first five letters 
+    # of the name + first two letters of the first name + 01.html.
     url = ("http://www.basketball-reference.com/players/" + 
            player.split(" ")[1].lower()[0] + "/" + 
            re.sub("[^a-zA-Z]+", "", player.split(" ")[1].lower())[:5] + 
@@ -90,6 +93,9 @@ for player, url in dict_players_urls.items():
 # or with the date. We have to make a slight change to the urls: "...02.html"
 for player in set(players_error_name + players_error_date):
     print(player)
+    # Build the url from the name and the firstname of the player.
+    # The pattern we use is the following: first five letters 
+    # of the name + first two letters of the first name + 02.html.
     url = ("http://www.basketball-reference.com/players/" + 
            player.split(" ")[1].lower()[0] + "/" + 
            re.sub("[^a-zA-Z]+", "", player.split(" ")[1].lower())[:5] + 
@@ -124,7 +130,7 @@ for player in set(players_error_name + players_error_date):
                 print("----- Something's wrong!")
 print("")
 
-# Still an error with Mo Williams: "Mo" is not his real firstname.
+# Still got an error with Mo Williams: "Mo" is not his real firstname.
 url = "http://www.basketball-reference.com/players/w/willima01.html"
 response = requests.get(url, params={"action": "render"}, timeout=10)
 soup = BeautifulSoup(response.content, "lxml")
