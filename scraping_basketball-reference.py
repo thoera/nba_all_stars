@@ -124,7 +124,7 @@ for player in set(players_error_name + players_error_date):
                 print("----- Something's wrong!")
 print("")
 
-# Still an error with Mo Williams: "Mo" is not is real firstname.
+# Still an error with Mo Williams: "Mo" is not his real firstname.
 url = "http://www.basketball-reference.com/players/w/willima01.html"
 response = requests.get(url, params={"action": "render"}, timeout=10)
 soup = BeautifulSoup(response.content, "lxml")
