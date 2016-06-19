@@ -455,8 +455,10 @@ df$nationality_other <- ifelse(df$nationality_short == "American",
                                "American", "Other")
 proportion(df$nationality_other)
 
+# Barplot of the nationalities of the players.
 ggplot(data = df, aes(x = nationality_other)) +
-  geom_bar() +
+  geom_bar(width = 0.6) +
+  scale_y_continuous(limits = c(0, 125), breaks = seq(0, 125, by = 25)) +
   xlab("\nnationality") + 
   ylab("count\n") +
   theme_light_grey()
@@ -465,16 +467,6 @@ ggplot(data = df, aes(x = nationality_other)) +
 
 # List of data frames.
 
-list_df <- vector("list", 27)
-
-list_df[[1]] <- df[df$year_1990 == 1, ]
-list_df[[2]] <- df[df$year_1991 == 1, ]
-list_df[[3]] <- df[df$year_1992 == 1, ]
-
-for (i in seq_along(list_df)) {
-  list_df[[i]] <- df[df$i == 1, ]
-}
-
 i <- paste0("year_", seq(1990, 2016, by = 1))
 df_years_selection <- lapply(i, function(x) df[df[[x]] == 1, ])
 
@@ -482,23 +474,60 @@ lapply(df_years_selection, function(x) proportion(x$nationality_other))
 
 # ----------
 
-## .
+## The colleges.
 
-df$college_2 <- gsub("\\s\\(.*?\\)", ",", df$college) %>%
-  gsub(",*$", "", .)
+df$college_2 <- gsub("\\s\\(.*?\\)", ",", df$college) %>% 
+  gsub(",*$", "", .) %>%
+  gsub(".*,", "", .)  %>% # Keep only the last college if several are listed.
+  trimws()  # Remove leading and/or trailing whitespace.
 
-toto <- as.data.frame(proportion(df$college_2))
-toto$college_name <- row.names(toto)
+# The guys who didn't go to college.
+df[df$college_2 == "", "college_2"] <- NA
+df[is.na(df$college_2), "player"]
 
-arrange(toto, desc(count)) %>%
+proportion(df$college_2) %>%
+  as.data.frame() %>%
+  mutate(college_name = row.names(.)) %>%
+  arrange(desc(count)) %>%
   head(n = 10)
 
 # ----------
 
-## Enrich data with stats.
+## Enrich data with game stats.
 
 nba_stats <- read.csv("./nba_all_stars/nba_all_stars_stats.csv", 
                       header = TRUE, stringsAsFactors = FALSE, sep = ";", 
                       fileEncoding = "UTF-8")
 
 nba_stats <- rename(nba_stats, player = X)
+
+df_stats <- left_join(select(df, player, height, weight, position_5, 
+                             draft_pick, number_of_selections), 
+                      nba_stats,
+                      by = "player")
+
+# Heatmap.
+
+test <- select(df_stats, -position_5, -draft_pick)
+
+rescale_ <- function(x) {
+  (x - min(x, na.rm = TRUE)) / diff(range(x, na.rm = TRUE))
+}
+
+test <- mutate_each(test, funs(rescale_), -player)
+
+str(test)
+
+test <- melt(test, id.vars = "player")
+
+ggplot(test, aes(x = variable, y = player)) + 
+  geom_tile(aes(fill = value), colour = "white") + 
+  scale_fill_gradient(low = "white", high = "steelblue") + 
+  scale_x_discrete("", expand = c(0, 0)) + 
+  scale_y_discrete("", expand = c(0, 0)) + 
+  theme_grey(base_size = 14) +
+  theme_light_grey() + 
+  theme(legend.position = "none", axis.ticks = element_blank(), 
+        axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Facet by position?
