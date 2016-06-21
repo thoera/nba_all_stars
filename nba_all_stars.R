@@ -507,27 +507,153 @@ df_stats <- left_join(select(df, player, height, weight, position_5,
                       by = "player")
 
 # Heatmap.
-
-test <- select(df_stats, -position_5, -draft_pick)
+df_heatmap <- select(df_stats, -position_5, -draft_pick)
 
 rescale_ <- function(x) {
   (x - min(x, na.rm = TRUE)) / diff(range(x, na.rm = TRUE))
 }
 
-test <- mutate_each(test, funs(rescale_), -player)
+df_heatmap <- mutate_each(df_heatmap, funs(rescale_), -player)
 
-str(test)
+df_heatmap <- melt(df_heatmap, id.vars = "player")
 
-test <- melt(test, id.vars = "player")
-
-ggplot(test, aes(x = variable, y = player)) + 
+ggplot(df_heatmap, aes(x = variable, y = player)) + 
   geom_tile(aes(fill = value), colour = "white") + 
   scale_fill_gradient(low = "white", high = "steelblue") + 
   scale_x_discrete("", expand = c(0, 0)) + 
-  scale_y_discrete("", expand = c(0, 0)) + 
-  theme_grey(base_size = 14) +
-  theme_light_grey() + 
+  scale_y_discrete("", expand = c(0, 0)) +
+  theme_light_grey(14) + 
   theme(legend.position = "none", axis.ticks = element_blank(), 
         axis.text.x = element_text(angle = 45, hjust = 1))
 
-# Facet by position?
+# ggsave("./nba_all_stars/plots/heatmap.pdf", width = 12, height = 12)
+
+# Clustering.
+
+# Select the numerical variables and scale them.
+df_clustering <- select(df_stats, -player, -position_5, 
+                        - number_of_selections, -draft_pick, -G, -GS) %>%
+  scale()
+rownames(df_clustering) <- df_stats$player
+
+df_clustering_dist <- dist(df_clustering, method = "euclidean")
+
+ward_clustering <- hclust(df_clustering_dist, method = "ward.D2")
+plot(ward_clustering)  # We will keep 4 clusters.
+
+labelColors = c("darkorchid",  "dodgerblue4", "mediumseagreen", "darkorange")
+clusMember = cutree(ward_clustering, 4)
+
+colLab <- function(n) {
+  if (is.leaf(n)) {
+    a <- attributes(n)
+    labCol <- labelColors[clusMember[which(names(clusMember) == a$label)]]
+    attr(n, "nodePar") <- c(a$nodePar, lab.col = labCol)
+  }
+  n
+}
+
+hcd <- as.dendrogram(ward_clustering)
+clusDendro <- dendrapply(hcd, colLab)
+par(mar = c(9, 2, 4, 2) + 0.1)
+plot(clusDendro, main = "Dendrogram of the All-Stars drafted after 1990", 
+     type = "rectangle", horiz = FALSE)
+dev.off()
+
+df_stats$hca_cluster <- as.factor(cutree(ward_clustering, 4))
+
+g1 <- ggplot(df_stats, aes(x = hca_cluster, y = PTS, fill = hca_cluster)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq(0, 25, by = 5), limits = c(0, 27.5)) +
+  xlab("") + 
+  ylab("points per game\n") +
+  theme_light_grey() +
+  theme(legend.position = "none")
+
+g2 <- ggplot(df_stats, aes(x = hca_cluster, y = AST, fill = hca_cluster)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq(0, 10, by = 2.5), limits = c(0, 10)) +
+  xlab("") + 
+  ylab("assists per game\n") +
+  theme_light_grey() +
+  theme(legend.position = "none")
+
+g3 <- ggplot(df_stats, aes(x = hca_cluster, y = STL, fill = hca_cluster)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = c(0, 1, 2), limits = c(0, 2.5)) +
+  xlab("") + 
+  ylab("steals per game\n") +
+  theme_light_grey() +
+  theme(legend.position = "none")
+
+g4 <- ggplot(df_stats, aes(x = hca_cluster, y = TRB, fill = hca_cluster)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq(0, 12.5, by = 2.5), limits = c(0, 13)) +
+  xlab("\n") + 
+  ylab("rebounds per game\n") +
+  theme_light_grey() +
+  theme(legend.position = "none")
+
+g5 <- ggplot(df_stats, aes(x = hca_cluster, y = BLK, fill = hca_cluster)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = c(0, 1, 2, 3), limits = c(0, 3)) +
+  xlab("\n") + 
+  ylab("blocks per game\n") +
+  theme_light_grey() +
+  theme(legend.position = "none")
+
+g6 <- ggplot(df_stats, aes(x = hca_cluster, y = TOV, fill = hca_cluster)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = c(0, 1, 2, 3, 4), limits = c(0, 4)) +
+  xlab("\n") + 
+  ylab("turnovers per game\n") +
+  theme_light_grey() +
+  theme(legend.position = "none")
+
+grid.arrange(g1, g2, g3, g4, g5, g6, ncol = 3)
+
+# g <- arrangeGrob(g1, g2, g3, g4, g5, g6, ncol = 3)
+# ggsave("./nba_all_stars/plots/ward_clusters_boxplot_stats.pdf", g,
+#        width = 12, height = 9)
+
+g1 <- ggplot(df_stats, aes(x = hca_cluster, y = X2P_p, fill = hca_cluster)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq(0.40, 0.60, by = 0.05), 
+                     limits = c(0.40, 0.60)) +
+  xlab("") + 
+  ylab("2 point field goal percentage\n") +
+  theme_light_grey() +
+  theme(legend.position = "none")
+
+g2 <- ggplot(df_stats, aes(x = hca_cluster, y = X3P_p, fill = hca_cluster)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq(0, 0.4, by = 0.1), 
+                     limits = c(0, 0.45)) +
+  xlab("") + 
+  ylab("3 point field goal percentage\n") +
+  theme_light_grey() +
+  theme(legend.position = "none")
+
+g3 <- ggplot(df_stats, aes(x = hca_cluster, y = FG_p, fill = hca_cluster)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq(0.40, 0.60, by = 0.05), 
+                     limits = c(0.40, 0.60)) +
+  xlab("") + 
+  ylab("field goal percentage\n") +
+  theme_light_grey() +
+  theme(legend.position = "none")
+
+g4 <- ggplot(df_stats, aes(x = hca_cluster, y = FT_p, fill = hca_cluster)) +
+  geom_boxplot() +
+  scale_y_continuous(breaks = seq(0.40, 0.9, by = 0.1), 
+                     limits = c(0.35, 0.95)) +
+  xlab("\n") + 
+  ylab("free throw percentage\n") +
+  theme_light_grey() +
+  theme(legend.position = "none")
+
+grid.arrange(g1, g2, g3, g4, ncol = 2)
+
+# g <- arrangeGrob(g1, g2, g3, g4, ncol = 2)
+# ggsave("./nba_all_stars/plots/ward_clusters_boxplot_per.pdf", g,
+#        width = 12, height = 9)
