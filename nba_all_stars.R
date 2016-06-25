@@ -2,6 +2,7 @@ library("dplyr")
 library("reshape2")
 library("ggplot2")
 library("gridExtra")
+library("FactoMineR")
 
 # ----------
 
@@ -9,18 +10,18 @@ library("gridExtra")
 
 # Set the working directory.
 # setwd("")
-
 nba_all_stars <- read.csv("./nba_all_stars/nba_all_stars.csv", header = TRUE, 
                           stringsAsFactors = FALSE, strip.white = TRUE,
                           sep = ",", fileEncoding = "UTF-8")
 
 
-## Clean the names of the players (remove *, ^ and [.]).
+## Data cleaning.
+
+# Clean the names of the players (remove *, ^ and [.]).
 nba_all_stars <- mutate(nba_all_stars,
                         player = gsub("\\*|\\^|\\[\\w*\\]", "", player))
 
-
-## Save the file.
+# Save the file.
 # write.table(nba_all_stars, "./nba_all_stars/nba_all_stars_clean.csv", 
 #            sep =",", row.names = FALSE, quote = FALSE, fileEncoding = "UTF-8")
 
@@ -57,10 +58,10 @@ theme_light_grey <- function(base_size = 16, text_size = 18) {
     theme(axis.title = element_text(size = text_size),
           plot.background = bg_rect,
           panel.background = bg_rect,
-          panel.border = element_rect(fill = NA, colour = "grey80"),
+          panel.border = element_rect(fill = NA, color = "grey80"),
           legend.background = bg_rect,
-          panel.grid.major = element_line(colour = "grey80", size = 0.25),
-          panel.grid.minor = element_line(colour = "grey90", size = 0.25),
+          panel.grid.major = element_line(color = "grey80", size = 0.25),
+          panel.grid.minor = element_line(color = "grey90", size = 0.25),
           legend.key.width = unit(1.5, "line"),
           legend.key = element_blank())
 }
@@ -144,7 +145,7 @@ df$position_5 <- factor(x = df$position_5,
                                    "small forward", "power forward", "center"))
 proportion(df$position_5)
 
-# Barplot of the positions of the players.
+# Barplot of the positions.
 ggplot(data = df, aes(x = position_5)) +
   geom_bar(width = 0.6) +
   scale_y_continuous(limits = c(0, 35)) +
@@ -155,7 +156,7 @@ ggplot(data = df, aes(x = position_5)) +
 # ggsave("./nba_all_stars/plots/positions_barplot.pdf",
 #        width = 12, height = 9)
 
-# Dotplot of the positions of the players.
+# Dotplot of the positions.
 df %>%
   group_by(position_5) %>%
   summarise(count = n()) %>%
@@ -175,7 +176,7 @@ df %>%
 
 ## Height and weight.
 
-# Keep only the metric measures.
+# Keep only the metric system.
 df <- mutate(df, height = gsub(pattern = ".*\\((.*)\\)", replacement = "\\1", 
                                listed_height) %>%
                                   substr(1, 4) %>%
@@ -250,7 +251,7 @@ ggplot(data = df, aes(x = height, y = weight)) +
 # ggsave("./nba_all_stars/plots/weigh_height_scatterplot.pdf",
 #        width = 12, height = 9)
 
-# Interesting values.
+# A few interesting values.
 df[df$height > 2.25, "player"]  # Yao Ming.
 df[df$weight > 140, "player"]  # Shaquille O'Neal & Yao Ming.
 df[df$height < 1.8, "player"]  # Isaiah Thomas.
@@ -286,7 +287,7 @@ ggplot(data = df, aes(x = height, y = weight)) +
   scale_y_continuous(breaks = c(80, 100, 120, 140),
                      minor_breaks = c(90, 110, 130),
                      limits = c(70, 150)) +
-  scale_colour_manual(values = "#F8766D", labels = "point guard") +
+  scale_color_manual(values = "#F8766D", labels = "point guard") +
   theme_light_grey() +
   theme(legend.position = "bottom", legend.title = element_blank())
 
@@ -304,7 +305,7 @@ ggplot(data = df, aes(x = height, y = weight)) +
   scale_y_continuous(breaks = c(80, 100, 120, 140),
                      minor_breaks = c(90, 110, 130),
                      limits = c(70, 150)) +
-  scale_colour_manual(values = "#A3A500", labels = "shooting guard") +
+  scale_color_manual(values = "#A3A500", labels = "shooting guard") +
   theme_light_grey() +
   theme(legend.position = "bottom", legend.title = element_blank())
 
@@ -322,7 +323,7 @@ ggplot(data = df, aes(x = height, y = weight)) +
   scale_y_continuous(breaks = c(80, 100, 120, 140),
                      minor_breaks = c(90, 110, 130),
                      limits = c(70, 150)) +
-  scale_colour_manual(values = "#00BF7D", labels = "small forward") +
+  scale_color_manual(values = "#00BF7D", labels = "small forward") +
   theme_light_grey() +
   theme(legend.position = "bottom", legend.title = element_blank())
 
@@ -340,7 +341,7 @@ ggplot(data = df, aes(x = height, y = weight)) +
   scale_y_continuous(breaks = c(80, 100, 120, 140),
                      minor_breaks = c(90, 110, 130),
                      limits = c(70, 150)) +
-  scale_colour_manual(values = "#00B0F6", labels = "power forward") +
+  scale_color_manual(values = "#00B0F6", labels = "power forward") +
   theme_light_grey() +
   theme(legend.position = "bottom", legend.title = element_blank())
 
@@ -358,7 +359,7 @@ ggplot(data = df, aes(x = height, y = weight)) +
   scale_y_continuous(breaks = c(80, 100, 120, 140),
                      minor_breaks = c(90, 110, 130),
                      limits = c(70, 150)) +
-  scale_colour_manual(values = "#E76BF3", labels = "center") +
+  scale_color_manual(values = "#E76BF3", labels = "center") +
   theme_light_grey() +
   theme(legend.position = "bottom", legend.title = element_blank())
 
@@ -399,43 +400,43 @@ ggplot(data = df, aes(x = height, y = weight)) +
 
 # ----------
 
-## Years of selection.
+## Years where the players have been selected to the all-star game.
 
-years_selection <- data.table::tstrsplit(df$years, ";")
-
-split_years <- function(x) {
-  inf <- gsub("–.*", "", x) %>%
-    trimws() %>%
-    as.numeric()
-  sup <- gsub(".*–", "", x) %>%
-    gsub(";.*", "", .) %>%
-    as.numeric()
-  if (is.na(x)) {
-    inf_sup <- inf
-  } else {
-    inf_sup <- seq(inf, sup, by = 1)
-  }
-  return(inf_sup)
-}
-
-years_selection <- lapply(years_selection, lapply, split_years)
-
-years_selection <- do.call(Map, c(c, years_selection))
-
-years_selection <- lapply(seq(1990, 2016, by = 1), function(year) {
-  lapply(years_selection, function(selections) ifelse(year %in% selections, 
-                                                      1, 0))
-})
-
-names_var <- names(df)
-
-df <- years_selection %>%
-  data.table::rbindlist() %>%
-  data.table::transpose() %>%
-  as.data.frame() %>%
-  cbind(df, .)
-
-names(df) <- c(names_var, paste0("year_", seq(1990, 2016, by = 1)))
+# years_selection <- data.table::tstrsplit(df$years, ";")
+# 
+# split_years <- function(x) {
+#   inf <- gsub("–.*", "", x) %>%
+#     trimws() %>%
+#     as.numeric()
+#   sup <- gsub(".*–", "", x) %>%
+#     gsub(";.*", "", .) %>%
+#     as.numeric()
+#   if (is.na(x)) {
+#     inf_sup <- inf
+#   } else {
+#     inf_sup <- seq(inf, sup, by = 1)
+#   }
+#   return(inf_sup)
+# }
+# 
+# years_selection <- lapply(years_selection, lapply, split_years)
+# 
+# years_selection <- do.call(Map, c(c, years_selection))
+# 
+# years_selection <- lapply(seq(1990, 2016, by = 1), function(year) {
+#   lapply(years_selection, function(selections) ifelse(year %in% selections, 
+#                                                       1, 0))
+# })
+# 
+# names_var <- names(df)
+# 
+# df <- years_selection %>%
+#   data.table::rbindlist() %>%
+#   data.table::transpose() %>%
+#   as.data.frame() %>%
+#   cbind(df, .)
+# 
+# names(df) <- c(names_var, paste0("year_", seq(1990, 2016, by = 1)))
 
 # ----------
 
@@ -444,10 +445,11 @@ names(df) <- c(names_var, paste0("year_", seq(1990, 2016, by = 1)))
 proportion(df$nationality)
 
 # Joakim Noah has no nationality listed. 
-# He is French (and also American and Swedish).
+# He is French, American and Swedish but he played for France.
 df[df$nationality == "", "nationality"] <- "French"
 
-# Keep only the first nationality listed for each player.
+# Keep only the first nationality listed for each player when more than one 
+# are listed.
 df <- mutate(df, nationality_short = gsub(" /.*", "", nationality))
 
 # Recode all the non-americans as Other.
@@ -455,7 +457,7 @@ df$nationality_other <- ifelse(df$nationality_short == "American",
                                "American", "Other")
 proportion(df$nationality_other)
 
-# Barplot of the nationalities of the players.
+# Barplot of the nationalities.
 ggplot(data = df, aes(x = nationality_other)) +
   geom_bar(width = 0.6) +
   scale_y_continuous(limits = c(0, 125), breaks = seq(0, 125, by = 25)) +
@@ -465,20 +467,12 @@ ggplot(data = df, aes(x = nationality_other)) +
 
 # ----------
 
-# List of data frames.
-
-i <- paste0("year_", seq(1990, 2016, by = 1))
-df_years_selection <- lapply(i, function(x) df[df[[x]] == 1, ])
-
-lapply(df_years_selection, function(x) proportion(x$nationality_other))
-
-# ----------
-
 ## The colleges.
 
+# Clean the college column.
 df$college_2 <- gsub("\\s\\(.*?\\)", ",", df$college) %>% 
   gsub(",*$", "", .) %>%
-  gsub(".*,", "", .)  %>% # Keep only the last college if several are listed.
+  gsub(".*,", "", .)  %>%  # Keep only the last college if several are listed.
   trimws()  # Remove leading and/or trailing whitespace.
 
 # The guys who didn't go to college.
@@ -493,7 +487,7 @@ proportion(df$college_2) %>%
 
 # ----------
 
-## Enrich data with game stats.
+## Add some game stats to the dataset.
 
 nba_stats <- read.csv("./nba_all_stars/nba_all_stars_stats.csv", 
                       header = TRUE, stringsAsFactors = FALSE, sep = ";", 
@@ -501,12 +495,15 @@ nba_stats <- read.csv("./nba_all_stars/nba_all_stars_stats.csv",
 
 nba_stats <- rename(nba_stats, player = X)
 
+# Join the stats and a subset of the data.
 df_stats <- left_join(select(df, player, height, weight, position_5, 
-                             draft_pick, number_of_selections), 
-                      nba_stats,
+                             draft_pick, number_of_selections), nba_stats,
                       by = "player")
 
-# Heatmap.
+# ----------
+
+## Heatmap.
+
 df_heatmap <- select(df_stats, -position_5, -draft_pick)
 
 rescale_ <- function(x) {
@@ -518,7 +515,7 @@ df_heatmap <- mutate_each(df_heatmap, funs(rescale_), -player)
 df_heatmap <- melt(df_heatmap, id.vars = "player")
 
 ggplot(df_heatmap, aes(x = variable, y = player)) + 
-  geom_tile(aes(fill = value), colour = "white") + 
+  geom_tile(aes(fill = value), color = "white") + 
   scale_fill_gradient(low = "white", high = "steelblue") + 
   scale_x_discrete("", expand = c(0, 0)) + 
   scale_y_discrete("", expand = c(0, 0)) +
@@ -528,22 +525,26 @@ ggplot(df_heatmap, aes(x = variable, y = player)) +
 
 # ggsave("./nba_all_stars/plots/heatmap.pdf", width = 12, height = 12)
 
-# Clustering.
+# ----------
+
+## Clustering.
 
 # Select the numerical variables and scale them.
-df_clustering <- select(df_stats, -player, -position_5, 
-                        - number_of_selections, -draft_pick, -G, -GS) %>%
+df_clustering <- select(df_stats, -player, -position_5, -number_of_selections, 
+                        -draft_pick, -G, -GS) %>%
   scale()
 rownames(df_clustering) <- df_stats$player
 
+# Compute the distance.
 df_clustering_dist <- dist(df_clustering, method = "euclidean")
 
+# The clustering itself.
 ward_clustering <- hclust(df_clustering_dist, method = "ward.D2")
 plot(ward_clustering)  # We will keep 4 clusters.
 
+# Improve a little bit the look of the dendrogram.
 labelColors = c("darkorchid",  "dodgerblue4", "mediumseagreen", "darkorange")
 clusMember = cutree(ward_clustering, 4)
-
 colLab <- function(n) {
   if (is.leaf(n)) {
     a <- attributes(n)
@@ -552,16 +553,16 @@ colLab <- function(n) {
   }
   n
 }
-
 hcd <- as.dendrogram(ward_clustering)
 clusDendro <- dendrapply(hcd, colLab)
 par(mar = c(9, 2, 4, 2) + 0.1)
 plot(clusDendro, main = "Dendrogram of the All-Stars drafted after 1990", 
      type = "rectangle", horiz = FALSE)
-dev.off()
 
+# Add the clusters to the dataset.
 df_stats$hca_cluster <- as.factor(cutree(ward_clustering, 4))
 
+# Inspect the clusters graphically.
 g1 <- ggplot(df_stats, aes(x = hca_cluster, y = PTS, fill = hca_cluster)) +
   geom_boxplot() +
   scale_y_continuous(breaks = seq(0, 25, by = 5), limits = c(0, 27.5)) +
@@ -613,9 +614,10 @@ g6 <- ggplot(df_stats, aes(x = hca_cluster, y = TOV, fill = hca_cluster)) +
 grid.arrange(g1, g2, g3, g4, g5, g6, ncol = 3)
 
 # g <- arrangeGrob(g1, g2, g3, g4, g5, g6, ncol = 3)
-# ggsave("./nba_all_stars/plots/ward_clusters_boxplot_stats.pdf", g,
+# ggsave("./nba_all_stars/plots/hca_clusters_boxplot_stats.pdf", g,
 #        width = 12, height = 9)
 
+# Same for the shooting stats.
 g1 <- ggplot(df_stats, aes(x = hca_cluster, y = X2P_p, fill = hca_cluster)) +
   geom_boxplot() +
   scale_y_continuous(breaks = seq(0.40, 0.60, by = 0.05), 
@@ -655,5 +657,80 @@ g4 <- ggplot(df_stats, aes(x = hca_cluster, y = FT_p, fill = hca_cluster)) +
 grid.arrange(g1, g2, g3, g4, ncol = 2)
 
 # g <- arrangeGrob(g1, g2, g3, g4, ncol = 2)
-# ggsave("./nba_all_stars/plots/ward_clusters_boxplot_per.pdf", g,
+# ggsave("./nba_all_stars/plots/hca_clusters_boxplot_per.pdf", g,
 #        width = 12, height = 9)
+
+# ----------
+
+## PCA.
+
+# Select the numerical variables and scale them.
+df_pca <- select(df_stats, -player, -position_5, -number_of_selections, 
+                 -draft_pick, -G, -GS, -hca_cluster)
+
+df_pca_res <- PCA(df_pca, scale.unit = TRUE, ncp = 4, graph = FALSE)
+
+df_pca_eig <- df_pca_res$eig
+colnames(df_pca_eig) <- list("eigenvalue", "percentage_of_variance", 
+                             "cumulative_percentage_of_variance")
+df_pca_eig$principal_component <- seq_len(ncol(df_pca))
+
+# Cumulative percentage of variance.
+ggplot(df_pca_eig, aes(x = principal_component, 
+                       y = cumulative_percentage_of_variance)) +
+  geom_line(size = 0.75) +
+  geom_point(size = 2.5) +
+  scale_y_continuous(limits = c(35, 100), breaks = seq(40, 100, 10)) +
+  scale_x_continuous(limits = c(0, 25), breaks = seq(0, 25, 5)) +
+  xlab("\nprincipal component") +
+  ylab("cumulative percentage of variance\n") +
+  theme_light_grey()
+
+# ggsave("./nba_all_stars/plots/pca.pdf", width = 12, height = 9)
+
+# Variables factor map.
+df_pca_var <- data.frame(df_pca_res$var$coord[, c(1, 2)])
+
+angle <- seq(-pi, pi, length = 100)
+circle <- data.frame(x = sin(angle), y = cos(angle))
+
+ggplot(data = df_pca_var) +
+  geom_polygon(data = circle, aes(x, y), color = "black", fill = NA) +
+  geom_segment(aes(x = 0, y = 0, xend = Dim.1, yend = Dim.2), 
+               arrow = arrow(length = unit(0.02, "npc"))) +
+  geom_text(aes(x = Dim.1, y = Dim.2, 
+                label = row.names(test)), size = 4.5, hjust = 1) +
+  scale_x_continuous(limits = c(-1.25, 1.25)) +
+  scale_y_continuous(limits = c(-1.25, 1.25)) +
+  xlab(paste0("\nDimension 1 ", 
+              paste0("(", round(df_pca_eig[1, 2], 2), "%", ")"))) +
+  ylab(paste0("Dimension 2 ", 
+              paste0("(", round(df_pca_eig[2, 2], 2), "%", ")\n"))) +
+  theme_light_grey()
+
+# ggsave("./nba_all_stars/plots/pca_variable.pdf", width = 9, height = 9)
+
+# Individuals factor map.
+df_pca_plot <- as.data.frame(df_pca_res$ind$coord[, c(1, 2)])
+colnames(df_pca_plot) <- c("coord_dim1", "coord_dim2")
+df_pca_plot <- cbind(df_pca_plot, df_pca_res$ind$cos2[, c(1, 2)])
+colnames(df_pca_plot)[c(3, 4)] <- c("cos2_dim1", "cos2_dim2")
+df_pca_plot <- cbind(df_pca_plot, df_pca_res$ind$contrib[, c(1, 2)])
+colnames(df_pca_plot)[c(5, 6)] <- c("contrib_dim1", "contrib_dim2")
+
+df_pca_plot$position <- df_stats$position_5
+df_pca_plot$hca_cluster <- df_stats$hca_cluster
+
+ggplot(df_pca_plot, aes(x = coord_dim1, y = coord_dim2)) +
+  geom_point(aes(color = hca_cluster), size = 2.5) +
+  scale_x_continuous(limits = c(-8, 7), breaks = seq(-6, 6, by = 3)) +
+  scale_y_continuous(limits = c(-7, 8), breaks = seq(-6, 6, by = 3)) +
+  scale_color_discrete(name = "hca clusters") +
+  xlab(paste0("\nDimension 1 ", 
+              paste0("(", round(df_pca_eig[1, 2], 2), "%", ")"))) +
+  ylab(paste0("Dimension 2 ", 
+              paste0("(", round(df_pca_eig[2, 2], 2), "%", ")\n"))) +
+  theme_light_grey() +
+  theme(legend.position = "bottom")
+
+# ggsave("./nba_all_stars/plots/hca_pca_projection.pdf", width = 12, height = 9)
