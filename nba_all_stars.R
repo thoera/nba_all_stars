@@ -7,12 +7,9 @@ library("FactoMineR")
 # ----------
 
 ## Load the dataset.
-
-# Set the working directory.
-# setwd("")
-nba_all_stars <- read.csv("./nba_all_stars/nba_all_stars.csv", header = TRUE, 
-                          stringsAsFactors = FALSE, strip.white = TRUE,
-                          sep = ",", fileEncoding = "UTF-8")
+nba_all_stars <- read.csv("./nba_all_stars/data/nba_all_stars.csv", 
+                          header = TRUE, stringsAsFactors = FALSE, sep = ",",
+                          strip.white = TRUE, fileEncoding = "UTF-8")
 
 
 ## Data cleaning.
@@ -22,7 +19,7 @@ nba_all_stars <- mutate(nba_all_stars,
                         player = gsub("\\*|\\^|\\[\\w*\\]", "", player))
 
 # Save the file.
-# write.table(nba_all_stars, "./nba_all_stars/nba_all_stars_clean.csv", 
+# write.table(nba_all_stars, "./nba_all_stars/data/nba_all_stars_clean.csv", 
 #            sep =",", row.names = FALSE, quote = FALSE, fileEncoding = "UTF-8")
 
 
@@ -30,7 +27,7 @@ nba_all_stars <- mutate(nba_all_stars,
 
 # Load the file with the personnal information downloaded and 
 # pre-processed in Python.
-players_info <- read.csv("./nba_all_stars/nba_all_stars_info.csv", 
+players_info <- read.csv("./nba_all_stars/data/nba_all_stars_info.csv", 
                          header = TRUE, stringsAsFactors = FALSE, sep = ";",
                          fileEncoding = "UTF-8")
 
@@ -38,7 +35,7 @@ players_info <- read.csv("./nba_all_stars/nba_all_stars_info.csv",
 players_info_1990 <- filter(players_info, draft_year >= 1990)
 
 # Save the names of the players drafted in 1990 or after.
-# write.table(players_info_1990$player, "./nba_all_stars/players_1990.txt",
+# write.table(players_info_1990$player, "./nba_all_stars/data/players_1990.txt",
 #             sep = ";", row.names = FALSE, col.names = FALSE, quote = FALSE,
 #             fileEncoding = "UTF-8")
 
@@ -208,7 +205,7 @@ g2 <- ggplot(data = df, aes(x = factor(""), y = weight)) +
 grid.arrange(g1, g2, ncol = 2)
 
 # g <- arrangeGrob(g1, g2, ncol = 2)
-# ggsave("./nba_all_stars/plots/weigh_height_boxplot.pdf", g,
+# ggsave("./nba_all_stars/plots/weight_height_boxplot.pdf", g,
 #        width = 12, height = 9)
 
 # Boxplots of heigth and weight by position.
@@ -233,7 +230,7 @@ g2 <- ggplot(data = df, aes(x = position_5, y = weight)) +
 grid.arrange(g1, g2, ncol = 1)
 
 # g <- arrangeGrob(g1, g2, ncol = 1)
-# ggsave("./nba_all_stars/plots/weigh_height_boxplot_positions.pdf", g,
+# ggsave("./nba_all_stars/plots/weight_height_boxplot_positions.pdf", g,
 #        width = 12, height = 9)
 
 # Scatterplot of height and weight.
@@ -248,7 +245,7 @@ ggplot(data = df, aes(x = height, y = weight)) +
   theme_light_grey() +
   theme(legend.position = "bottom", legend.title = element_blank())
 
-# ggsave("./nba_all_stars/plots/weigh_height_scatterplot.pdf",
+# ggsave("./nba_all_stars/plots/weight_height_scatterplot.pdf",
 #        width = 12, height = 9)
 
 # A few interesting values.
@@ -273,7 +270,7 @@ ggplot(data = df, aes(x = height, y = weight)) +
   theme_light_grey() +
   theme(legend.position = "bottom", legend.title = element_blank())
 
-# ggsave("./nba_all_stars/plots/weigh_height_scatterplot_names.pdf",
+# ggsave("./nba_all_stars/plots/weight_height_scatterplot_names.pdf",
 #        width = 12, height = 9)
 
 # Point guards.
@@ -291,7 +288,7 @@ ggplot(data = df, aes(x = height, y = weight)) +
   theme_light_grey() +
   theme(legend.position = "bottom", legend.title = element_blank())
 
-# ggsave("./nba_all_stars/plots/weigh_height_point_guards.pdf",
+# ggsave("./nba_all_stars/plots/weight_height_point_guards.pdf",
 #        width = 12, height = 9)
 
 # Shooting guards.
@@ -309,7 +306,7 @@ ggplot(data = df, aes(x = height, y = weight)) +
   theme_light_grey() +
   theme(legend.position = "bottom", legend.title = element_blank())
 
-# ggsave("./nba_all_stars/plots/weigh_height_shooting_guards.pdf",
+# ggsave("./nba_all_stars/plots/weight_height_shooting_guards.pdf",
 #        width = 12, height = 9)
 
 # Small forwards.
@@ -327,7 +324,7 @@ ggplot(data = df, aes(x = height, y = weight)) +
   theme_light_grey() +
   theme(legend.position = "bottom", legend.title = element_blank())
 
-# ggsave("./nba_all_stars/plots/weigh_height_small_forwards.pdf",
+# ggsave("./nba_all_stars/plots/weight_height_small_forwards.pdf",
 #        width = 12, height = 9)
 
 # Power forwards.
@@ -345,7 +342,7 @@ ggplot(data = df, aes(x = height, y = weight)) +
   theme_light_grey() +
   theme(legend.position = "bottom", legend.title = element_blank())
 
-# ggsave("./nba_all_stars/plots/weigh_height_power_forwards.pdf",
+# ggsave("./nba_all_stars/plots/weight_height_power_forwards.pdf",
 #        width = 12, height = 9)
 
 # Centers.
@@ -363,7 +360,7 @@ ggplot(data = df, aes(x = height, y = weight)) +
   theme_light_grey() +
   theme(legend.position = "bottom", legend.title = element_blank())
 
-# ggsave("./nba_all_stars/plots/weigh_height_centers.pdf",
+# ggsave("./nba_all_stars/plots/weight_height_centers.pdf",
 #        width = 12, height = 9)
 
 # Fit a local polynomial regression.
@@ -379,7 +376,7 @@ ggplot(data = df, aes(x = height, y = weight)) +
   theme_light_grey() +
   theme(legend.position = "bottom", legend.title = element_blank())
 
-# ggsave("./nba_all_stars/plots/weigh_height_poly_regression.pdf",
+# ggsave("./nba_all_stars/plots/weight_height_poly_regression.pdf",
 #        width = 12, height = 9)
 
 # Fit 5 linear regressions (one for each position).
@@ -395,7 +392,7 @@ ggplot(data = df, aes(x = height, y = weight)) +
   theme(legend.position = "bottom", legend.title = element_blank()) +
   guides(color = guide_legend(override.aes = list(fill = NA)))
 
-# ggsave("./nba_all_stars/plots/weigh_height_linear_regressions_positions.pdf",
+# ggsave("./nba_all_stars/plots/weight_height_linear_regressions_positions.pdf",
 #        width = 12, height = 9)
 
 # ----------
@@ -489,7 +486,7 @@ proportion(df$college_2) %>%
 
 ## Add some game stats to the dataset.
 
-nba_stats <- read.csv("./nba_all_stars/nba_all_stars_stats.csv", 
+nba_stats <- read.csv("./nba_all_stars/data/nba_all_stars_stats.csv", 
                       header = TRUE, stringsAsFactors = FALSE, sep = ";", 
                       fileEncoding = "UTF-8")
 
@@ -502,28 +499,37 @@ df_stats <- left_join(select(df, player, height, weight, position_5,
 
 # ----------
 
-## Heatmap.
+## Correlation heatmap.
 
-df_heatmap <- select(df_stats, -position_5, -draft_pick)
+df_cor <- select(df_stats, -player, -position_5, 
+                 -draft_pick, -number_of_selections)
 
-rescale_ <- function(x) {
-  (x - min(x, na.rm = TRUE)) / diff(range(x, na.rm = TRUE))
-}
+df_cor <- cor(df_cor) %>%
+  melt()
 
-df_heatmap <- mutate_each(df_heatmap, funs(rescale_), -player)
+labels_reorder <- c("G", "GS", "MP", "PTS", "FG", "FGA", "FG_p", "eFG_p",
+                    "X2P", "X2PA", "X2P_p", "X3P", "X3PA", "X3P_p", 
+                    "FT", "FTA", "FT_p", "ORB", "DRB", "TRB", "AST", "STL", 
+                    "BLK", "TOV", "PF", "height", "weight")
 
-df_heatmap <- melt(df_heatmap, id.vars = "player")
+labels_names <- c("G", "GS", "MP", "PTS", "FG", "FGA", "FG%", "eFG%",
+                  "2P", "2PA", "2P%", "3P", "3PA", "3P%", 
+                  "FT", "FTA", "FT%", "ORB", "DRB", "TRB", "AST", "STL", 
+                  "BLK", "TOV", "PF", "height", "weight")
 
-ggplot(df_heatmap, aes(x = variable, y = player)) + 
-  geom_tile(aes(fill = value), color = "white") + 
-  scale_fill_gradient(low = "white", high = "steelblue") + 
-  scale_x_discrete("", expand = c(0, 0)) + 
-  scale_y_discrete("", expand = c(0, 0)) +
-  theme_light_grey(14) + 
-  theme(legend.position = "none", axis.ticks = element_blank(), 
+ggplot(data = df_cor, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile(color = "#f4f4f4") +
+  scale_fill_gradient(low = "white", high = "steelblue") +
+  scale_x_discrete("", expand = c(0, 0), 
+                   limits = labels_reorder, labels = labels_names) +
+  scale_y_discrete("", expand = c(0, 0), 
+                   limits = rev(labels_reorder), labels = rev(labels_names)) +
+  coord_fixed() +
+  theme_light_grey() +
+  theme(legend.position = "none", axis.ticks = element_blank(),
         axis.text.x = element_text(angle = 45, hjust = 1))
 
-# ggsave("./nba_all_stars/plots/heatmap.pdf", width = 12, height = 12)
+# ggsave("./nba_all_stars/plots/heatmap.pdf", width = 9, height = 9)
 
 # ----------
 
@@ -590,7 +596,7 @@ g3 <- ggplot(df_stats, aes(x = hca_cluster, y = STL, fill = hca_cluster)) +
 g4 <- ggplot(df_stats, aes(x = hca_cluster, y = TRB, fill = hca_cluster)) +
   geom_boxplot() +
   scale_y_continuous(breaks = seq(0, 12.5, by = 2.5), limits = c(0, 13)) +
-  xlab("\n") + 
+  xlab("") + 
   ylab("rebounds per game\n") +
   theme_light_grey() +
   theme(legend.position = "none")
@@ -598,7 +604,7 @@ g4 <- ggplot(df_stats, aes(x = hca_cluster, y = TRB, fill = hca_cluster)) +
 g5 <- ggplot(df_stats, aes(x = hca_cluster, y = BLK, fill = hca_cluster)) +
   geom_boxplot() +
   scale_y_continuous(breaks = c(0, 1, 2, 3), limits = c(0, 3)) +
-  xlab("\n") + 
+  xlab("") + 
   ylab("blocks per game\n") +
   theme_light_grey() +
   theme(legend.position = "none")
@@ -606,7 +612,7 @@ g5 <- ggplot(df_stats, aes(x = hca_cluster, y = BLK, fill = hca_cluster)) +
 g6 <- ggplot(df_stats, aes(x = hca_cluster, y = TOV, fill = hca_cluster)) +
   geom_boxplot() +
   scale_y_continuous(breaks = c(0, 1, 2, 3, 4), limits = c(0, 4)) +
-  xlab("\n") + 
+  xlab("") + 
   ylab("turnovers per game\n") +
   theme_light_grey() +
   theme(legend.position = "none")
@@ -649,7 +655,7 @@ g4 <- ggplot(df_stats, aes(x = hca_cluster, y = FT_p, fill = hca_cluster)) +
   geom_boxplot() +
   scale_y_continuous(breaks = seq(0.40, 0.9, by = 0.1), 
                      limits = c(0.35, 0.95)) +
-  xlab("\n") + 
+  xlab("") + 
   ylab("free throw percentage\n") +
   theme_light_grey() +
   theme(legend.position = "none")
@@ -699,7 +705,7 @@ ggplot(data = df_pca_var) +
   geom_segment(aes(x = 0, y = 0, xend = Dim.1, yend = Dim.2), 
                arrow = arrow(length = unit(0.02, "npc"))) +
   geom_text(aes(x = Dim.1, y = Dim.2, 
-                label = row.names(test)), size = 4.5, hjust = 1) +
+                label = row.names(df_pca_var)), size = 4.5, hjust = 1) +
   scale_x_continuous(limits = c(-1.25, 1.25)) +
   scale_y_continuous(limits = c(-1.25, 1.25)) +
   xlab(paste0("\nDimension 1 ", 
