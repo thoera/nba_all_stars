@@ -21,14 +21,21 @@ There are at least two reasons for that choice:
 
 That list is not very rich (the name of the player, the number and the year(s) of selection and that's it) so I used `Beautiful Soup` to gather more data by scraping the Wikipedia page of each player and [Basketball-Reference.com](http://www.basketball-reference.com/) a website which has a lot of game statistics.
 
-## Number of selections
+## All-Star one time, All-Star all the time?
 
 The first thing we can look at is the number of selection(s) to the All-Star game.
 
-And to be frank it was quite a surprise for me: about one third of the players have been selected only one time for the event and just a little less than 1/3 more than three times.
+And to be frank it was quite a surprise for me: about one third of the players have been selected only one time for the event! 
+
+On the other hand, four players have been selected fifteen times or more: Kevin Garnett, Kobe Bryant, Shaquille O'Neal and Tim Duncan.
 
 ![number_of_selections_histogram.png](/plots/number_of_selections_histogram.png?raw=true)
 
+## A preferable position to be selected? 
 
+There are two ways to be selected: 
+* fans vote on the starters for the game, selecting three frontcourt players and two guards. 
+* coaches vote for the reserves: two guards, three frontcourt players and two wild cards.
 
+Before 2013 it was a little different: fans selected two forwards and one center instead of thee frontcourt players.
 
