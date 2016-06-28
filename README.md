@@ -31,11 +31,28 @@ On the other hand, four players have been selected fifteen times or more: Kevin 
 
 ![number_of_selections_histogram.png](/plots/number_of_selections_histogram.png?raw=true)
 
-## A preferable position to be selected? 
+## Is there a better position to be selected? 
+
+First let's look at the distribution of the players selected.
+
+![positions_dotplot.png](/plots/positions_dotplot.png?raw=true)
+
+It seems that power forwards and point guards have better chances to be selected to the All-Star Game than the others. 
+
+But we should be careful here: a good proportion of the players have more than one position listed on their wikipedia page and I kept only the first one when it was the case. Therefore there could be some bias in this approach.
+
+Let's talk a bit of the selection process.
 
 There are two ways to be selected: 
 * fans vote on the starters for the game, selecting three frontcourt players and two guards. 
 * coaches vote for the reserves: two guards, three frontcourt players and two wild cards.
 
-Before 2013 it was a little different: fans selected two forwards and one center instead of thee frontcourt players.
+Before 2013 it was a little different: fans selected two forwards and one center instead of three frontcourt players.
+Can we see that change in the data?
+
+![positions_by_year_facets.png](/plots/positions_by_year_facets.png?raw=true)
+
+There is no clear tendency or pattern since 2013: the number of center selected is not as high as it was around 2005 but it's still really comparable with the 2010's numbers. Maybe we need a few more years to draw some conclusions about that change?
+
+## Weight and Height
 
