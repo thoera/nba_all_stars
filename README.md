@@ -54,5 +54,20 @@ Can we see that change in the data?
 
 There is no clear tendency or pattern since 2013: the number of center selected is not as high as it was around 2005 but it's still really comparable with the 2010's numbers. Maybe we need a few more years to draw some conclusions about that change?
 
-## Weight and Height
+## Height and Weight
 
+We can also investigate the height and weight of the All-Stars drafted since 1990. The first plot we can look at is a boxplot per position. No surprise here: centers are taller and heavier than point guards.
+
+![weight_height_boxplot_positions.png](/plots/weight_height_boxplot_positions.png?raw=true)
+
+What's interesting is the dispersion: low for the shooting guards and the power forwards and distinctly more important for the others.
+
+We can also see some outliers (a point guard bigger than 2 meters? Is that you Penny Hardaway?) and we will focus on that just below.
+
+![weight_height_scatterplot_names.png](/plots/weight_height_scatterplot_names.png?raw=true)
+
+We have some giants - Yao and Shaq - and also a smaller guy: Isaiah Thomas. Larry Johnson is also a small guy for a power forward (less than 2 meters) when Penny (it was Penny) is a really tall point guard.
+
+Even with those outliers the relation between height and weight is close to be linear. But the slope seems really different between the five positions. With `ggplot2`, it's really easy to check that visually (and we can also check the impact of the outliers at the same time).
+
+![GIF_1](/plots/weight_height_linear_regressions_gif.gif)
