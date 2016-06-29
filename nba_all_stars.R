@@ -3,6 +3,8 @@ library("reshape2")
 library("ggplot2")
 library("gridExtra")
 library("FactoMineR")
+library("radarchart")
+library("shiny")
 
 # ----------
 
@@ -48,7 +50,7 @@ df <- left_join(players_info_1990, nba_all_stars, by = "player")
 
 # ggplot2 theme.
 theme_light_grey <- function(base_size = 16, text_size = 18) {
-  bg_color <- "#f4f4f4"
+  bg_color <- "#F4F4F4"
   bg_rect <- element_rect(fill = bg_color, color = bg_color)
   
   theme_bw(base_size = base_size) +
@@ -88,6 +90,8 @@ proportion <- function(x) {
 
 ## Number of selections.
 
+proportion(df$number_of_selections)
+
 # Histogram of the number of selections.
 ggplot(data = df, aes(x = number_of_selections)) +
   geom_histogram(bins = 16) +
@@ -101,6 +105,46 @@ ggplot(data = df, aes(x = number_of_selections)) +
 
 # Players with more than 15 selections.
 df[df$number_of_selections >= 15, c("player", "number_of_selections")]
+
+# ----------
+
+## Years where the players have been selected to the all-star game.
+
+years_selection <- data.table::tstrsplit(df$years, ";")
+
+split_years <- function(x) {
+  inf <- gsub("–.*", "", x) %>%
+    trimws() %>%
+    as.numeric()
+  sup <- gsub(".*–", "", x) %>%
+    gsub(";.*", "", .) %>%
+    as.numeric()
+  if (is.na(x)) {
+    inf_sup <- inf
+  } else {
+    inf_sup <- seq(inf, sup, by = 1)
+  }
+  return(inf_sup)
+}
+
+years_selection <- lapply(years_selection, lapply, split_years)
+
+years_selection <- do.call(Map, c(c, years_selection))
+
+years_selection <- lapply(seq(1990, 2016, by = 1), function(year) {
+  lapply(years_selection, function(selections) ifelse(year %in% selections,
+                                                      1, 0))
+})
+
+names_var <- names(df)
+
+df <- years_selection %>%
+  data.table::rbindlist() %>%
+  data.table::transpose() %>%
+  as.data.frame() %>%
+  cbind(df, .)
+
+names(df) <- c(names_var, paste0("year_", seq(1990, 2016, by = 1)))
 
 # ----------
 
@@ -167,6 +211,62 @@ df %>%
     theme_light_grey()
 
 # ggsave("./nba_all_stars/plots/positions_dotplot.pdf",
+#        width = 12, height = 9)
+
+# Get a count of the positions by year.
+positions_by_year <- vector(mode = "list", 17)
+
+for (i in seq(2000, 2016, by = 1)) {
+  positions_by_year[[i - 1999]] <- df %>%
+    filter_(lazyeval::interp(~ var == 1, var = as.name(paste0("year_", i)))) %>%
+    group_by(position_5) %>%
+    summarise(count = n()) %>%
+    print() %>%
+    mutate(year = i)
+}
+
+# From a list to a (long) data frame.
+positions_by_year <- positions_by_year %>%
+  data.table::rbindlist()
+
+# Plot the count of the positions by year. 
+# In 2013, the process selection changed.
+ggplot(data = filter(positions_by_year, position_5 %in% c("center", 
+                                                          "power forward")),
+       aes(x = year, y = count, color = position_5)) +
+  geom_vline(xintercept = 2013, color = "grey50", linetype = "longdash") +
+  geom_point(size = 2.5) +
+  geom_line() +
+  scale_x_continuous(breaks = seq(2000, 2015, by = 5)) +
+  scale_y_continuous(breaks = seq(0, 8, by = 2), limits = c(0, 9)) +
+  xlab("") + 
+  ylab("count\n") +
+  annotate("text", x = 2011.5, y = 1, color = "grey50",
+           label = "In 2013, the selection\nprocess changed") +
+  theme_light_grey() +
+  theme(legend.position = "bottom", legend.title = element_blank())
+
+# ggsave("./nba_all_stars/plots/positions_by_year.pdf",
+#        width = 12, height = 9)
+
+# Facets.
+ggplot(data = filter(positions_by_year, position_5 %in% c("center", 
+                                                          "power forward",
+                                                          "small forward")),
+       aes(x = year, y = count, color = position_5)) +
+  geom_vline(xintercept = 2013, color = "grey50", linetype = "longdash") +
+  geom_point(size = 2.5) +
+  geom_line() +
+  facet_grid(~ position_5) +
+  scale_x_continuous(breaks = seq(2000, 2015, by = 5)) +
+  scale_y_continuous(breaks = seq(0, 8, by = 2), limits = c(0, 9)) +
+  xlab("") + 
+  ylab("count\n") +
+  theme_light_grey() +
+  theme(legend.position = "bottom", legend.title = element_blank(), 
+        strip.background = element_rect(colour = "grey50", fill = "#F4F4F4"))
+
+# ggsave("./nba_all_stars/plots/positions_by_year_facets.pdf",
 #        width = 12, height = 9)
 
 # ----------
@@ -252,9 +352,11 @@ ggplot(data = df, aes(x = height, y = weight)) +
 df[df$height > 2.25, "player"]  # Yao Ming.
 df[df$weight > 140, "player"]  # Shaquille O'Neal & Yao Ming.
 df[df$height < 1.8, "player"]  # Isaiah Thomas.
-df[df$weight < 80, "player"]  # A. Iverson, C. Paul, K. Anderson & N. Van Exel. 
+df[df$weight < 80, "player"]  # A. Iverson, C. Paul, K. Anderson & N. Van Exel.
+df[df$height > 2 & df$position_5 == "point guard", "player"]  # P. Hardaway.
+df[df$height < 2 & df$position_5 == "power forward", "player"]  # L. Johnson.
 
-# Add the names of the "giants" and of the "little one" to the plot.
+# Add the names of the outliers to the plot.
 ggplot(data = df, aes(x = height, y = weight)) +
   geom_point(aes(color = position_5), size = 2.5) +
   xlab("\nheight (in m)") + 
@@ -264,9 +366,11 @@ ggplot(data = df, aes(x = height, y = weight)) +
                      minor_breaks = c(90, 110, 130),
                      limits = c(70, 150)) +
   geom_text(data = df[df$player %in% c("Yao Ming", 
-                                       "Shaquille O'Neal", 
+                                       "Shaquille O'Neal",
+                                       "Penny Hardaway",
+                                       "Larry Johnson",
                                        "Isaiah Thomas"), ],
-            aes(label = player), size = 4.5, vjust = 2) +
+            aes(label = player), color = "grey40", size = 4.5, vjust = 2) +
   theme_light_grey() +
   theme(legend.position = "bottom", legend.title = element_blank())
 
@@ -380,8 +484,8 @@ ggplot(data = df, aes(x = height, y = weight)) +
 #        width = 12, height = 9)
 
 # Fit 5 linear regressions (one for each position).
-ggplot(data = df, aes(x = height, y = weight)) +
-  geom_smooth(aes(color = position_5), fill = "grey80", method = "lm") +
+ggplot(data = df, aes(x = height, y = weight, color = position_5)) +
+  geom_smooth(fill = "grey80", method = "lm") +
   xlab("\nheight (in m)") + 
   ylab("weight (in kg)\n") +
   scale_x_continuous(labels = two_digits, limits = c(1.75, 2.30)) +
@@ -395,45 +499,26 @@ ggplot(data = df, aes(x = height, y = weight)) +
 # ggsave("./nba_all_stars/plots/weight_height_linear_regressions_positions.pdf",
 #        width = 12, height = 9)
 
-# ----------
+# Fit 5 linear regressions (one for each position) without the outliers.
+ggplot(data = filter(df, !player %in% c("Yao Ming", "Shaquille O'Neal",
+                                       "Penny Hardaway", "Larry Johnson",
+                                       "Isaiah Thomas")), 
+                     aes(x = height, y = weight, color = position_5)) +
+  geom_smooth(fill = "grey80", method = "lm") +
+  xlab("\nheight (in m)") + 
+  ylab("weight (in kg)\n") +
+  scale_x_continuous(labels = two_digits, limits = c(1.75, 2.30)) +
+  scale_y_continuous(breaks = c(80, 100, 120, 140),
+                     minor_breaks = c(90, 110, 130),
+                     limits = c(70, 150)) +
+  annotate("text", x = 2.25, y = 85, color = "grey50",
+           label = "Without the outliers", size = 6) +
+  theme_light_grey() +
+  theme(legend.position = "bottom", legend.title = element_blank()) +
+  guides(color = guide_legend(override.aes = list(fill = NA)))
 
-## Years where the players have been selected to the all-star game.
-
-# years_selection <- data.table::tstrsplit(df$years, ";")
-# 
-# split_years <- function(x) {
-#   inf <- gsub("–.*", "", x) %>%
-#     trimws() %>%
-#     as.numeric()
-#   sup <- gsub(".*–", "", x) %>%
-#     gsub(";.*", "", .) %>%
-#     as.numeric()
-#   if (is.na(x)) {
-#     inf_sup <- inf
-#   } else {
-#     inf_sup <- seq(inf, sup, by = 1)
-#   }
-#   return(inf_sup)
-# }
-# 
-# years_selection <- lapply(years_selection, lapply, split_years)
-# 
-# years_selection <- do.call(Map, c(c, years_selection))
-# 
-# years_selection <- lapply(seq(1990, 2016, by = 1), function(year) {
-#   lapply(years_selection, function(selections) ifelse(year %in% selections, 
-#                                                       1, 0))
-# })
-# 
-# names_var <- names(df)
-# 
-# df <- years_selection %>%
-#   data.table::rbindlist() %>%
-#   data.table::transpose() %>%
-#   as.data.frame() %>%
-#   cbind(df, .)
-# 
-# names(df) <- c(names_var, paste0("year_", seq(1990, 2016, by = 1)))
+# ggsave("./nba_all_stars/plots/weight_height_linear_regressions_no_outliers.pdf",
+#        width = 12, height = 9)
 
 # ----------
 
@@ -740,3 +825,17 @@ ggplot(df_pca_plot, aes(x = coord_dim1, y = coord_dim2)) +
   theme(legend.position = "bottom")
 
 # ggsave("./nba_all_stars/plots/hca_pca_projection.pdf", width = 12, height = 9)
+
+# ----------
+
+## Radar chart.
+
+df_radar <- filter(df_stats, player %in% c("LeBron James", "Stephen Curry")) %>%
+  select(player, PTS, AST, TRB, BLK, TOV) %>%
+  melt(id.vars = "player", variable.name = "Label", value.name = "Score") %>%
+  tidyr::spread(key = player, value = Score)
+
+colors <- matrix(c(248, 118, 109, 0, 191, 196), nrow = 3, ncol = 2)
+
+chartJSRadar(scores = df_radar, colMatrix = colors)
+runExampleApp("options")
