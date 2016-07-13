@@ -71,3 +71,15 @@ We have some giants - Yao and Shaq - and also a small guy: Isaiah Thomas. Larry 
 Even with those outliers the relation between height and weight is close to be linear. But the slope seems really different between the five positions. With `ggplot2`, it's really easy to check that visually (and we can also check the impact of the outliers at the same time).
 
 ![GIF_1](/plots/weight_height_linear_regressions_gif.gif)
+
+## Stats, always more stats!
+
+With a little bit of web scraping I was able to gather some game statistics from [Basketball-Reference.com](http://www.basketball-reference.com/). This website is really rich and usefull if you like game statistics and basketball: highly recommended! Another great ressource is [stats.nba.com](http://stats.nba.com/) which has a wonderful API: more on that below.
+
+### A correlation matrix
+
+Thanks to our web scraping we now have 25 more variables to dive a little deeper in this analysis. The stats are mostly *per game* statistics and not *career* statistics and so it's easier to have a fair comparison between players.      
+
+Let's start by a correlation matrix: a usefull tool to find some relations in the data.
+
+![heatmap.png](/plots/heatmap.png?raw=true)
