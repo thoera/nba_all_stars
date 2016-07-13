@@ -17,9 +17,9 @@ That means 131 of the 406 NBA All-Stars.
 
 There are at least two reasons for that choice: 
 * the NBA changed a few times the way (and what) statistics per game are collected ;
-* I don't really know the players before 1990.
+* (maybe the real reason) I don't really know the players before 1990.
 
-That list is not very rich (the name of the player, the number and the year(s) of selection and that's it) so I used `Beautiful Soup` to gather more data by scraping the Wikipedia page of each player and [Basketball-Reference.com](http://www.basketball-reference.com/) a website which has a lot of game statistics.
+The wikipedia list is not very rich (the name of the player, the number and the year(s) of selection and that's it) so I used `Beautiful Soup` to gather more data by scraping the own Wikipedia page of each player and also  [Basketball-Reference.com](http://www.basketball-reference.com/) a website which has a lot of game statistics.
 
 ## All-Star one time, All-Star all the time?
 
@@ -27,7 +27,7 @@ The first thing we can look at is the number of selection(s) to the All-Star gam
 
 And to be frank it was quite a surprise for me: about one third of the players have been selected only one time for the event! 
 
-On the other hand, four players have been selected fifteen times or more: Kevin Garnett, Kobe Bryant, Shaquille O'Neal and Tim Duncan.
+On the other hand, four players have been selected fifteen times or more: Kevin Garnett, Kobe Bryant, Shaquille O'Neal and Tim Duncan (no surprise here: four legends of the game).
 
 ![number_of_selections_histogram.png](/plots/number_of_selections_histogram.png?raw=true)
 
@@ -52,7 +52,7 @@ Can we see that change in the data?
 
 ![positions_by_year_facets.png](/plots/positions_by_year_facets.png?raw=true)
 
-There is no clear tendency or pattern since 2013: the number of center selected is not as high as it was around 2005 but it's still really comparable with the 2010's numbers. Maybe we need a few more years to draw some conclusions about that change?
+There is no clear tendency or pattern in that plot: the number of center selected in 2013 and after is not as high as it was around 2005 but it's still really comparable with the 2010's numbers. Maybe we need a few more years to draw some conclusions about that change?
 
 ## Height and Weight
 
@@ -66,7 +66,7 @@ We can also see some outliers (a point guard bigger than 2 meters? Is that you P
 
 ![weight_height_scatterplot_names.png](/plots/weight_height_scatterplot_names.png?raw=true)
 
-We have some giants - Yao and Shaq - and also a smaller guy: Isaiah Thomas. Larry Johnson is also a small guy for a power forward (less than 2 meters) when Penny (it was Penny) is a really tall point guard.
+We have some giants - Yao and Shaq - and also a small guy: Isaiah Thomas. Larry Johnson is also a small guy for a power forward (less than 2 meters) when Penny (yes it was Penny) is a really tall point guard.
 
 Even with those outliers the relation between height and weight is close to be linear. But the slope seems really different between the five positions. With `ggplot2`, it's really easy to check that visually (and we can also check the impact of the outliers at the same time).
 
