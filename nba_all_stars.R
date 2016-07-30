@@ -276,12 +276,12 @@ ggplot(data = filter(positions_by_year, position_5 %in% c("center",
 # Keep only the metric system.
 df <- mutate(df, height = gsub(pattern = ".*\\((.*)\\)", replacement = "\\1", 
                                listed_height) %>%
-                                  substr(1, 4) %>%
-                                  as.numeric(),
+               substr(1, 4) %>%
+               as.numeric(),
                  weight = gsub(pattern = ".*\\((.*)\\)", replacement = "\\1", 
-                               listed_weight) %>% 
-                                  substr(1, 3) %>%
-                                  as.numeric())
+                               listed_weight) %>%
+               gsub(pattern = "[^0-9]", replacement = "", .) %>%
+               as.numeric())
 
 # Boxplots of height and weight.
 g1 <- ggplot(data = df, aes(x = factor(""), y = height)) +
@@ -813,6 +813,8 @@ df_pca_plot$position <- df_stats$position_5
 df_pca_plot$hca_cluster <- df_stats$hca_cluster
 
 ggplot(df_pca_plot, aes(x = coord_dim1, y = coord_dim2)) +
+  geom_vline(xintercept = 0, color = "grey50", linetype = "longdash") +
+  geom_hline(yintercept = 0, color = "grey50", linetype = "longdash") +
   geom_point(aes(color = hca_cluster), size = 2.5) +
   scale_x_continuous(limits = c(-8, 7), breaks = seq(-6, 6, by = 3)) +
   scale_y_continuous(limits = c(-7, 8), breaks = seq(-6, 6, by = 3)) +
