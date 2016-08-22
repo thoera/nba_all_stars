@@ -74,12 +74,19 @@ Even with those outliers the relation between height and weight is close to be l
 
 ## Stats, always more stats!
 
-With a little bit of web scraping I was able to gather some game statistics from [Basketball-Reference.com](http://www.basketball-reference.com/). This website is really rich and usefull if you like game statistics and basketball: highly recommended! Another great ressource is [stats.nba.com](http://stats.nba.com/) which has a wonderful API: more on that below.
+With a little bit of web scraping (see `scraping_basketball-reference.py` for the code) I was able to gather some game statistics from [Basketball-Reference.com](http://www.basketball-reference.com/). This website is really rich and usefull if you like game statistics and basketball: highly recommended! Another great ressource is [stats.nba.com](http://stats.nba.com/) which has a wonderful API.
 
 ### A correlation matrix
 
-Thanks to our web scraping we now have 25 more variables to dive a little deeper in this analysis. The stats are mostly *per game* statistics and not *career* statistics and so it's easier to have a fair comparison between players.      
+Thanks to our web scraping we now have 25 more variables to dive a little deeper. Those features are mostly *per game* statistics and not *career* statistics so it's easier to have a fair comparison between players.      
 
 Let's start by a correlation matrix: a usefull tool to find some relations in the data.
 
-![heatmap.png](/plots/heatmap.png?raw=true)
+![heatmap.png](/plots/heatmap.png)
+
+The darker the blue is, the stronger the positive correlation between two variables is. For instance there is a strong positive correlation between the number of turnovers and the number of assists per game.
+
+On the other hand, a strong negative correlation is represented by a light tile. We can see a strong negative correlation between the number of offensive rebounds and the free throw percentage (some great examples are Shaq, Big Ben or DeAndre Jordan).
+
+### Let's cluster these guys!
+
