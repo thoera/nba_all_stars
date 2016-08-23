@@ -80,7 +80,7 @@ With a little bit of web scraping (see `scraping_basketball-reference.py` for th
 
 Thanks to our web scraping we now have 25 more variables to dive a little deeper. Those features are mostly *per game* statistics and not *career* statistics so it's easier to have a fair comparison between players.      
 
-Let's start by a correlation matrix: a usefull tool to find some relations in the data.
+Let's start with a correlation matrix: a usefull tool to find some relations in the data.
 
 ![heatmap.png](/plots/heatmap.png)
 
@@ -90,3 +90,12 @@ On the other hand, a strong negative correlation is represented by a light tile.
 
 ### Let's cluster these guys!
 
+We can also focus a bit on the players themselves and try a clustering method. When the number of observations (ie the number of players in that particular case) is quite small I like to begin with a hierarchical cluster analysis which is a relatively simple method to understand and gives pretty good results in general.
+
+The number of observations is small enough to compute the clustering instantaneously but big enough to make the dendrogram difficult to read ([here](/plots/hca.pdf) is the pdf version so you can zoom in to see the labels). 
+
+I choose to keep four clusters and we can investigate them with some boxplots.
+
+![hca_clusters_boxplot_stats.png](/plots/hca_clusters_boxplot_stats.png?raw=true)
+
+![hca_clusters_boxplot_per.png](/plots/hca_clusters_boxplot_per.png?raw=true)
