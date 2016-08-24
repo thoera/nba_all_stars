@@ -86,16 +86,51 @@ Let's start with a correlation matrix: a usefull tool to find some relations in 
 
 The darker the blue is, the stronger the positive correlation between two variables is. For instance there is a strong positive correlation between the number of turnovers and the number of assists per game.
 
-On the other hand, a strong negative correlation is represented by a light tile. We can see a strong negative correlation between the number of offensive rebounds and the free throw percentage (some great examples are Shaq, Big Ben or DeAndre Jordan).
+On the other hand, a strong negative correlation is represented by a light tile. For example we can see a strong negative correlation between the number of offensive rebounds and the free throw percentage (some great examples are Shaq, Big Ben or DeAndre Jordan).
 
 ### Let's cluster these guys!
 
-We can also focus a bit on the players themselves and try a clustering method. When the number of observations (ie the number of players in that particular case) is quite small I like to begin with a hierarchical cluster analysis which is a relatively simple method to understand and gives pretty good results in general.
+We can also focus a bit on the players themselves and try a clustering method. When the number of observations (i.e. the number of players in that particular case) is quite small I like to begin with a hierarchical cluster analysis which is a relatively simple method to understand and still gives pretty good results in general.
 
 The number of observations is small enough to compute the clustering instantaneously but big enough to make the dendrogram difficult to read ([here](/plots/hca.pdf) is the pdf version so you can zoom in to see the labels). 
+The clustering was done with all the numeric variables (scaled) with the exception of the number of selections and the number of games played.
 
-I choose to keep four clusters and we can investigate them with some boxplots.
+First things first let's look quickly at the number of players in each cluster:
+
+| cluster | number of players |
+| :---: | :---: |
+| #1 | 35 |
+| #2 | 47 |
+| #3 | 20 |
+| #4 | 29 |
+
+There is nothing too important to highlight here except maybe the fact that the cluster #2 is a big one (more than one third of the players).
+
+We can now graphically investigate these clusters with a few boxplots.
 
 ![hca_clusters_boxplot_stats.png](/plots/hca_clusters_boxplot_stats.png?raw=true)
 
+With the help of the plots we can briefly describe our clusters:
+* cluster #1: a cluster of big guys (not a lot of points, few assists, good rebounders and blockers) ;
+* cluster #2: mainly point guards and shooting guards (good shooters, very few rebounds and blocks...) but probably not always the franchise players ;
+* cluster #3: the Stars of the All-Stars: K. Durant, L. James, K. Bryant, S. Curry and so on ;
+* cluster #4: a cluster of tall guys who are good scorers (in terms of points and percentages) and also good in defense (players like K. Garnett, B. Griffin, D. Cousins, etc.).
+
 ![hca_clusters_boxplot_per.png](/plots/hca_clusters_boxplot_per.png?raw=true)
+
+If we want to see our clusters on a 2D plot one of the easiest way is to perform a PCA and then project the players on the first two principal components (or at least two components).
+
+Drawing the correlation circle is useful to understand what variables contribute to the axis and how ("positively" vs. "negatively"). It's also a way to confirm our interpretation of the clusters.
+
+![pca_variable.png](/plots/pca_variable.png?raw=true)
+
+The first dimension reflects the opposition between players who are good shooters (at long range and behind the foul line) and good creators with players who are more defensive and have a good percentage close to the circle. 
+The second dimension higlights mainly the scorers.
+
+And here is the result of the projection:
+
+![hca_pca_projection.png](/plots/hca_pca_projection.png?raw=true)
+
+The four clusters are well seperated and we can confirm our previous interpretation. That's a good news!
+
+## A shiny app
