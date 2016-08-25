@@ -3,13 +3,11 @@ library("reshape2")
 library("ggplot2")
 library("gridExtra")
 library("FactoMineR")
-library("radarchart")
-library("shiny")
 
 # ----------
 
 ## Load the dataset.
-nba_all_stars <- read.csv("./nba_all_stars/data/nba_all_stars.csv", 
+nba_all_stars <- read.csv("nba_all_stars/data/nba_all_stars.csv", 
                           header = TRUE, stringsAsFactors = FALSE, sep = ",",
                           strip.white = TRUE, fileEncoding = "UTF-8")
 
@@ -21,7 +19,7 @@ nba_all_stars <- mutate(nba_all_stars,
                         player = gsub("\\*|\\^|\\[\\w*\\]", "", player))
 
 # Save the file.
-# write.table(nba_all_stars, "./nba_all_stars/data/nba_all_stars_clean.csv", 
+# write.table(nba_all_stars, "nba_all_stars/data/nba_all_stars_clean.csv", 
 #            sep =",", row.names = FALSE, quote = FALSE, fileEncoding = "UTF-8")
 
 
@@ -29,7 +27,7 @@ nba_all_stars <- mutate(nba_all_stars,
 
 # Load the file with the personnal information downloaded and 
 # pre-processed in Python.
-players_info <- read.csv("./nba_all_stars/data/nba_all_stars_info.csv", 
+players_info <- read.csv("nba_all_stars/data/nba_all_stars_info.csv", 
                          header = TRUE, stringsAsFactors = FALSE, sep = ";",
                          fileEncoding = "UTF-8")
 
@@ -37,7 +35,7 @@ players_info <- read.csv("./nba_all_stars/data/nba_all_stars_info.csv",
 players_info_1990 <- filter(players_info, draft_year >= 1990)
 
 # Save the names of the players drafted in 1990 or after.
-# write.table(players_info_1990$player, "./nba_all_stars/data/players_1990.txt",
+# write.table(players_info_1990$player, "nba_all_stars/data/players_1990.txt",
 #             sep = ";", row.names = FALSE, col.names = FALSE, quote = FALSE,
 #             fileEncoding = "UTF-8")
 
@@ -571,7 +569,7 @@ proportion(df$college_2) %>%
 
 ## Add some game stats to the dataset.
 
-nba_stats <- read.csv("./nba_all_stars/data/nba_all_stars_stats.csv", 
+nba_stats <- read.csv("nba_all_stars/data/nba_all_stars_stats.csv", 
                       header = TRUE, stringsAsFactors = FALSE, sep = ";", 
                       fileEncoding = "UTF-8")
 
@@ -634,7 +632,7 @@ ward_clustering <- hclust(df_clustering_dist, method = "ward.D2")
 plot(ward_clustering)  # We will keep 4 clusters.
 
 # Improve a little bit the look of the dendrogram.
-labelColors = c("darkorchid",  "dodgerblue4", "mediumseagreen", "darkorange")
+labelColors = c("#F8766D",  "#7CAE00", "#00BFC4", "#C77CFF")
 clusMember = cutree(ward_clustering, 4)
 colLab <- function(n) {
   if (is.leaf(n)) {
@@ -646,9 +644,11 @@ colLab <- function(n) {
 }
 hcd <- as.dendrogram(ward_clustering)
 clusDendro <- dendrapply(hcd, colLab)
-par(mar = c(9, 2, 4, 2) + 0.1)
-plot(clusDendro, main = "Dendrogram of the All-Stars drafted after 1990", 
-     type = "rectangle", horiz = FALSE)
+# pdf("./nba_all_stars/plots/hca.pdf", useDingbats = FALSE, 
+#     width = 16, height = 9)
+par(mar = c(10, 2, 4, 2) + 0.1, cex = .75)
+plot(clusDendro, type = "rectangle", horiz = FALSE)
+# dev.off()
 
 # Add the clusters to the dataset.
 df_stats$hca_cluster <- as.factor(cutree(ward_clustering, 4))
@@ -830,14 +830,10 @@ ggplot(df_pca_plot, aes(x = coord_dim1, y = coord_dim2)) +
 
 # ----------
 
-## Radar chart.
+## Create a data frame with only the variables (PTS, AST, TRB, BLK, TOV)
+## we will use in the shiny app and save it.
 
-df_radar <- filter(df_stats, player %in% c("LeBron James", "Stephen Curry")) %>%
-  select(player, PTS, AST, TRB, BLK, TOV) %>%
-  melt(id.vars = "player", variable.name = "Label", value.name = "Score") %>%
-  tidyr::spread(key = player, value = Score)
-
-colors <- matrix(c(248, 118, 109, 0, 191, 196), nrow = 3, ncol = 2)
-
-chartJSRadar(scores = df_radar, colMatrix = colors)
-runExampleApp("options")
+# df_stats %>%
+#   select(player, PTS, AST, TRB, BLK, TOV, position_5) %>%
+#   write.table(., "nba_all_stars/data/main_stats.csv", sep =",",
+#               row.names = FALSE, quote = FALSE, fileEncoding = "UTF-8")
