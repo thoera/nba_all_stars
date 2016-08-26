@@ -830,10 +830,11 @@ ggplot(df_pca_plot, aes(x = coord_dim1, y = coord_dim2)) +
 
 # ----------
 
-## Create a data frame with only the variables (PTS, AST, TRB, BLK, TOV)
-## we will use in the shiny app and save it.
+## Create a data frame with only the variables (PTS, AST, TRB, BLK, TOV, 
+## X2P_p, X3P_p, FG_p, FT_p) we will use in the shiny app and save it.
 
 # df_stats %>%
-#   select(player, PTS, AST, TRB, BLK, TOV, position_5) %>%
+#   select(player, PTS, AST, TRB, BLK, TOV, 
+#          X2P_p, X3P_p, FG_p, FT_p, position_5) %>%
 #   write.table(., "nba_all_stars/data/main_stats.csv", sep =",",
 #               row.names = FALSE, quote = FALSE, fileEncoding = "UTF-8")
