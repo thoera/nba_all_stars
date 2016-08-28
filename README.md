@@ -4,22 +4,20 @@
 
 The 2016 NBA season is over (with one of the greatest comeback in history from Cleveland) and I will use that as a pretext to conduct a little analysis of the NBA All-Stars, that is the players who have been selected for the NBA All-Star Game at least once in their career.
 
-This analysis is mainly (if not entirely) a graphical analysis made in `R` with the help of the well known `ggplot2` package. And a hint of `Shiny` and `radarchart`.
+This analysis is mainly (if not entirely) a graphical analysis made in `R` with the help of the well known `ggplot2` package. And a hint of `shiny` and `radarchart`.
 
-Data come from a variety of web sites ([Wikipedia](https://en.wikipedia.org), [Basketball-Reference.com](http://www.basketball-reference.com/)) with a little bit of web scraping (`Beautiful Soup` is a `Python` library designed for that particular task and a tool of choice).
+Data come from a variety of web sites ([Wikipedia](https://en.wikipedia.org), [basketball-reference.com](http://www.basketball-reference.com/)) with a little bit of web scraping (`Beautiful Soup` is a `Python` library designed for that particular task and a tool of choice).
 
-All data and code are available.
-
-## The Data
+## Data
 
 Wikipedia has a [list](https://en.wikipedia.org/wiki/List_of_NBA_All-Stars) of all the players who have been selected for the NBA All-Star Game. I decided to focus the analysis on a subset of that list: I kept only the players drafted in 1990 and after.
 That means 131 of the 406 NBA All-Stars.
 
 There are at least two reasons for that choice: 
-* the NBA changed a few times the way (and what) statistics per game are collected ;
-* (maybe the real reason) I don't really know the players before 1990.
+* the NBA changed a few times how (and what) statistics per game are collected ;
+* I don't know the players drafted before 1990 as well (and that's probably the main reason).
 
-The wikipedia list is not very rich (the name of the player, the number and the year(s) of selection and that's it) so I used `Beautiful Soup` to gather more data by scraping the own Wikipedia page of each player and also  [Basketball-Reference.com](http://www.basketball-reference.com/) a website which has a lot of game statistics.
+The wikipedia list is not very rich (the name of the player, the number and the year(s) of selection and that's it) so I used `Beautiful Soup` to gather more data by scraping the own Wikipedia page of each player and also  [basketball-reference.com](http://www.basketball-reference.com/) a website which has a lot of game statistics.
 
 ## All-Star one time, All-Star all the time?
 
@@ -62,11 +60,11 @@ We can also investigate the height and weight of the All-Stars drafted since 199
 
 What's interesting is the dispersion: low for the shooting guards and the power forwards and distinctly more important for the others.
 
-We can also see some outliers (a point guard bigger than 2 meters? Is that you Penny Hardaway?) and we will focus on that just below.
+We can also see some outliers (a point guard taller than 2 meters? Is that you Penny Hardaway?) and we will focus on that just below.
 
 ![weight_height_scatterplot_names.png](/plots/weight_height_scatterplot_names.png?raw=true)
 
-We have some giants - Yao and Shaq - and also a small guy: Isaiah Thomas. Larry Johnson is also a small guy for a power forward (less than 2 meters) when Penny (yes it was Penny) is a really tall point guard.
+We have some giants - Yao and Shaq - and also a small guy: Isaiah Thomas. Larry Johnson is also a small guy for a power forward (less than 2 meters) when Penny (yes, it was Penny) is a really tall point guard.
 
 Even with those outliers the relation between height and weight is close to be linear. But the slope seems really different between the five positions. With `ggplot2`, it's really easy to check that visually (and we can also check the impact of the outliers at the same time).
 
@@ -74,7 +72,7 @@ Even with those outliers the relation between height and weight is close to be l
 
 ## Stats, always more stats!
 
-With a little bit of web scraping (see `scraping_basketball-reference.py` for the code) I was able to gather some game statistics from [Basketball-Reference.com](http://www.basketball-reference.com/). This website is really rich and usefull if you like game statistics and basketball: highly recommended! Another great ressource is [stats.nba.com](http://stats.nba.com/) which has a wonderful API.
+With a little bit of web scraping (see `scraping_basketball-reference.py` for the code) I was able to gather some game statistics from [basketball-reference.com](http://www.basketball-reference.com/). This website is rich and usefull if you like game statistics and basketball: highly recommended! Another great ressource is [stats.nba.com](http://stats.nba.com/) which has a wonderful API.
 
 ### A correlation matrix
 
@@ -86,13 +84,13 @@ Let's start with a correlation matrix: a usefull tool to find some relations in 
 
 The darker the blue is, the stronger the positive correlation between two variables is. For instance there is a strong positive correlation between the number of turnovers and the number of assists per game.
 
-On the other hand, a strong negative correlation is represented by a light tile. For example we can see a strong negative correlation between the number of offensive rebounds and the free throw percentage (some great examples are Shaq, Big Ben or DeAndre Jordan).
+On the other hand, a strong negative correlation is represented by a light tile. For example we can see a strong negative correlation between the number of offensive rebounds and the free throw percentage (some great examples of that are Shaq, Big Ben or DeAndre Jordan).
 
 ### Let's cluster these guys!
 
 We can also focus a bit on the players themselves and try a clustering method. When the number of observations (i.e. the number of players in that particular case) is quite small I like to begin with a hierarchical cluster analysis which is a relatively simple method to understand and still gives pretty good results in general.
 
-The number of observations is small enough to compute the clustering instantaneously but big enough to make the dendrogram difficult to read ([here](/plots/hca.pdf) is the pdf version so you can zoom in to see the labels). 
+The number of observations is small enough to compute the clustering instantaneously but big enough to make the dendrogram difficult to read so I don't show it (but [here](/plots/hca.pdf) is the pdf version where you can zoom in to see the labels). 
 The clustering was done with all the numeric variables (scaled) with the exception of the number of selections and the number of games played.
 
 First things first let's look quickly at the number of players in each cluster:
@@ -110,7 +108,7 @@ We can now graphically investigate these clusters with a few boxplots.
 
 ![hca_clusters_boxplot_stats.png](/plots/hca_clusters_boxplot_stats.png?raw=true)
 
-With the help of the plots we can briefly describe our clusters:
+With the help of these plots we can briefly describe our four clusters:
 * cluster #1: a cluster of big guys (not a lot of points, few assists, good rebounders and blockers) ;
 * cluster #2: mainly point guards and shooting guards (good shooters, very few rebounds and blocks...) but probably not always the franchise players ;
 * cluster #3: the Stars of the All-Stars: K. Durant, L. James, K. Bryant, S. Curry and so on ;
@@ -134,3 +132,11 @@ And here is the result of the projection:
 The four clusters are well seperated and we can confirm our previous interpretation. That's a good news!
 
 ## A shiny app
+
+I made a small app which can be used to compare up to five players (beyond that the plots becomes too difficult to read to my taste).
+
+An example with the new Big Three:
+
+![app.png](/app/app.png?raw=true)
+
+If you want to give it a try, the app is available on [shinyapps.io](https://thoera.shinyapps.io/nba_all_stars/).
