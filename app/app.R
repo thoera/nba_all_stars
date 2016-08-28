@@ -34,7 +34,7 @@ ggplot_colors <- function(n) {
 # ----------
 
 ## Load the dataset.
-df <- read.csv("./data/main_stats.csv",
+df <- read.csv("main_stats.csv",
                header = TRUE, stringsAsFactors = FALSE, sep = ",", 
                strip.white = TRUE, colClasses = c("position_5" = "factor"), 
                fileEncoding = "UTF-8")
