@@ -245,107 +245,95 @@ server <- function(input, output, session) {
   })
   
   output$table_stats <- DT::renderDataTable({
-    if (is.null(input$select_player)) {
-      return(NULL)
-    } else {
-      DT::datatable(df[df$player %in% input$select_player, ],
-                    options = list(paging = FALSE, searching = FALSE),
-                    rownames = FALSE, colnames = c("POS" = "position_5",
-                                                   "2P%" = "X2P_p",
-                                                   "3P%" = "X3P_p",
-                                                   "FG%" = "FG_p",
-                                                   "FT%" = "FT_p"))
-    }
+    req(input$select_player)
+    
+    DT::datatable(df[df$player %in% input$select_player, ],
+                  options = list(paging = FALSE, searching = FALSE),
+                  rownames = FALSE, colnames = c("POS" = "position_5",
+                                                 "2P%" = "X2P_p",
+                                                 "3P%" = "X3P_p",
+                                                 "FG%" = "FG_p",
+                                                 "FT%" = "FT_p"))
   })
   
   output$dotplot <- renderPlot({
-    if (is.null(input$select_player)) {
-      return(NULL)
-    } else {
-      data_to_plot <- df %>%
-        filter(player %in% input$select_player) %>%
-        select(-position_5) %>%
-        reshape2::melt(id.vars = "player")
-      
-      g1 <- data_to_plot %>%
-        filter(variable %in% c("PTS", "AST", "TRB", "BLK", "TOV")) %>%
-        ggplot(aes(x = variable, y = value, color = player)) +
-        geom_point(size = 5, 
-                   position = position_jitterdodge(jitter.width = 0,
-                                                   dodge.width = 0.35)) +
-        scale_y_continuous(breaks = seq(0, 30, by = 4),
-                           limits = c(0, 30)) +
-        xlab("") + 
-        ylab("") +
-        theme_simple() +
-        theme(legend.title = element_blank(), legend.position = "bottom")
-      
-      
-      g2 <- data_to_plot %>%
-        filter(variable %in% c("X2P_p", "X3P_p", "FG_p", "FT_p")) %>%
-        ggplot(aes(x = variable, y = value, color = player)) +
-        geom_point(size = 5, 
-                   position = position_jitterdodge(jitter.width = 0,
-                                                   dodge.width = 0.35)) +
-        scale_y_continuous(breaks = seq(0.1, 1, by = 0.2),
-                           limits = c(0, 1)) +
-        scale_x_discrete(breaks = c("X2P_p", "X3P_p", "FG_p", "FT_p"),
-                         labels = c("2P%", "3P%", "FG%", "FT%")) +
-        xlab("") + 
-        ylab("") +
-        theme_simple() +
-        theme(legend.position = "none")
-      
-      grid.arrange(arrangeGrob(g1 + theme(legend.position = "none"),
-                               g2, nrow = 1),
-                   g_legend(g1), nrow = 2, heights = c(10, 1))
-    }
+    req(input$select_player)
+    
+    data_to_plot <- df %>%
+      filter(player %in% input$select_player) %>%
+      select(-position_5) %>%
+      reshape2::melt(id.vars = "player")
+    
+    g1 <- data_to_plot %>%
+      filter(variable %in% c("PTS", "AST", "TRB", "BLK", "TOV")) %>%
+      ggplot(aes(x = variable, y = value, color = player)) +
+      geom_point(size = 5, 
+                 position = position_jitterdodge(jitter.width = 0,
+                                                 dodge.width = 0.35)) +
+      scale_y_continuous(breaks = seq(0, 30, by = 4),
+                         limits = c(0, 30)) +
+      xlab("") + 
+      ylab("") +
+      theme_simple() +
+      theme(legend.title = element_blank(), legend.position = "bottom")
+    
+    
+    g2 <- data_to_plot %>%
+      filter(variable %in% c("X2P_p", "X3P_p", "FG_p", "FT_p")) %>%
+      ggplot(aes(x = variable, y = value, color = player)) +
+      geom_point(size = 5, 
+                 position = position_jitterdodge(jitter.width = 0,
+                                                 dodge.width = 0.35)) +
+      scale_y_continuous(breaks = seq(0.1, 1, by = 0.2),
+                         limits = c(0, 1)) +
+      scale_x_discrete(breaks = c("X2P_p", "X3P_p", "FG_p", "FT_p"),
+                       labels = c("2P%", "3P%", "FG%", "FT%")) +
+      xlab("") + 
+      ylab("") +
+      theme_simple() +
+      theme(legend.position = "none")
+    
+    grid.arrange(arrangeGrob(g1 + theme(legend.position = "none"),
+                             g2, nrow = 1),
+                 g_legend(g1), nrow = 2, heights = c(10, 1))
   })
   
   df_radar <- reactive({
-    if (is.null(input$select_player)) {
-      return(NULL)
-    } else {
-      df %>%
-        filter(player %in% input$select_player) %>%
-        select(-position_5) %>%
-        reshape2::melt(id.vars = "player", 
-                       variable.name = "Label", value.name = "Score") %>%
-        tidyr::spread(key = player, value = Score)
-    }
+    req(input$select_player)
+    
+    df %>%
+      filter(player %in% input$select_player) %>%
+      select(-position_5) %>%
+      reshape2::melt(id.vars = "player", 
+                     variable.name = "Label", value.name = "Score") %>%
+      tidyr::spread(key = player, value = Score)
   })
   
   cols <- reactive({
-    if (is.null(input$select_player)) {
-      return(NULL)
-    } else {
-      col2rgb(ggplot_colors(n = length(input$select_player)))
-    }
+    req(input$select_player)
+    
+    col2rgb(ggplot_colors(n = length(input$select_player)))
   })
   
   output$radar_1 <- renderChartJSRadar({
-    if (is.null(input$select_player)) {
-      return(NULL)
-    } else {
-      chartJSRadar(scores = df_radar() %>%
-                     filter(Label %in% c("PTS", "AST", "TRB", "BLK", "TOV")) %>%
-                     select(order(names(.)), -Label), 
-                   labs = c("PTS", "AST", "TRB", "BLK", "TOV"), 
-                   showToolTipLabel = TRUE, colMatrix = cols())
-    }
+    req(input$select_player)
+    
+    chartJSRadar(scores = df_radar() %>%
+                   filter(Label %in% c("PTS", "AST", "TRB", "BLK", "TOV")) %>%
+                   select(order(names(.)), -Label), 
+                 labs = c("PTS", "AST", "TRB", "BLK", "TOV"), 
+                 showToolTipLabel = TRUE, colMatrix = cols())
   })
   
   output$radar_2 <- renderChartJSRadar({
-    if (is.null(input$select_player)) {
-      return(NULL)
-    } else {
-      chartJSRadar(scores = df_radar() %>%
-                     filter(Label %in% c("X2P_p", "X3P_p", "FG_p", "FT_p")) %>%
-                     select(order(names(.)), -Label), 
-                   labs = c("2P%", "3P%", "FG%", "FT%"),
-                   showToolTipLabel = TRUE, colMatrix = cols(), maxScale = 1,
-                   scaleStartValue = 0, scaleStepWidth = 0.25)
-    }
+    req(input$select_player)
+    
+    chartJSRadar(scores = df_radar() %>%
+                   filter(Label %in% c("X2P_p", "X3P_p", "FG_p", "FT_p")) %>%
+                   select(order(names(.)), -Label), 
+                 labs = c("2P%", "3P%", "FG%", "FT%"),
+                 showToolTipLabel = TRUE, colMatrix = cols(), maxScale = 1,
+                 scaleStartValue = 0, scaleStepWidth = 0.25)
   })
 }
 
