@@ -25,10 +25,17 @@ theme_simple <- function(base_size = 18, text_size = 20) {
           legend.key = element_blank())
 }
 
+# A way to add a legend to a grid of plots.
+g_legend <- function(plot_) {
+  tmp <- ggplot_gtable(ggplot_build(plot_))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)
+}
+
 # Colors used by ggplot2.
 ggplot_colors <- function(n) {
-  hues = seq(15, 375, length = n + 1)
-  hcl(h = hues, l = 65, c = 100)[1:n]
+  hcl(h = seq(15, 375, length = n + 1), l = 65, c = 100)[1:n]
 }
 
 # ----------
@@ -65,57 +72,66 @@ ui <- fluidPage(
              actionButton("random", "Random", 
                           icon = icon("random")),
              
-             h3("Filters:"),
+             actionButton("options_filters", "Filters",
+                          icon = icon("filter")),
              
-             selectizeInput("filter_position",
-                            label = h4("Position:"),
-                            choices = c("point guard", "shooting guard",
-                                        "small forward", "power forward",
-                                        "center"),
-                            multiple = TRUE,
-                            width = "80%",
-                            options = list(placeholder = "If empty, no filtering on the position is done.")),
-             
-             sliderInput("filter_points",
-                         label = h4("Points:"),
-                         min = 0,
-                         max = 30,
-                         value = c(0, 30)),
-             
-             sliderInput("filter_assists",
-                         label = h4("Assists:"),
-                         min = 0,
-                         max = 10,
-                         value = c(0, 12)),
-             
-             sliderInput("filter_rebounds",
-                         label = h4("Rebounds:"),
-                         min = 0,
-                         max = 14,
-                         value = c(0, 14)),
-             
-             sliderInput("filter_blocks",
-                         label = h4("Blocks:"),
-                         min = 0,
-                         max = 4,
-                         step = 0.5,
-                         value = c(0, 4)),
-             
-             sliderInput("filter_turnovers",
-                         label = h4("Turnovers:"),
-                         min = 0,
-                         max = 4,
-                         step = 0.5,
-                         value = c(0, 4)),
-             
-             actionButton("reset_filters", "Reset filters",
-                          icon = icon("undo"))
-             )),
+             div(id = "options_filters_",
+                 
+                 hr(),
+                 
+                 selectizeInput("filter_position",
+                                label = h4("Position:"),
+                                choices = c("point guard", "shooting guard",
+                                            "small forward", "power forward",
+                                            "center"),
+                                multiple = TRUE,
+                                width = "80%",
+                                options = list(placeholder =
+                                                 paste0("If empty, ",
+                                                        "no filtering on the ",
+                                                        "position is done."))),
+                 
+                 sliderInput("filter_points",
+                             label = h4("Points:"),
+                             min = 0,
+                             max = 30,
+                             value = c(0, 30)),
+                 
+                 sliderInput("filter_assists",
+                             label = h4("Assists:"),
+                             min = 0,
+                             max = 10,
+                             value = c(0, 12)),
+                 
+                 sliderInput("filter_rebounds",
+                             label = h4("Rebounds:"),
+                             min = 0,
+                             max = 14,
+                             value = c(0, 14)),
+                 
+                 sliderInput("filter_blocks",
+                             label = h4("Blocks:"),
+                             min = 0,
+                             max = 4,
+                             step = 0.5,
+                             value = c(0, 4)),
+                 
+                 sliderInput("filter_turnovers",
+                             label = h4("Turnovers:"),
+                             min = 0,
+                             max = 4,
+                             step = 0.5,
+                             value = c(0, 4)),
+                 
+                 actionButton("reset_filters", "Reset filters",
+                              icon = icon("undo"))
+             )
+           )),
     
     column(8,
            
            br(),
-           
+
            conditionalPanel(
              condition = "input.select_player",
              tagList(
@@ -125,9 +141,9 @@ ui <- fluidPage(
                br(),
                
                h5("Data from", 
-                  a("wikipedia", href = "https://www.wikipedia.org/"), "and",
-                  a("basketball-reference.", 
-                    href = "http://www.basketball-reference.com/")),
+                  a("wikipedia.org", href = "https://www.wikipedia.org/"),
+                  "and", a("basketball-reference.com",
+                           href = "http://www.basketball-reference.com/"), "."),
                
                br(),
                
@@ -153,7 +169,6 @@ ui <- fluidPage(
                             column(6, chartJSRadarOutput("radar_1")),
                             
                             column(6, chartJSRadarOutput("radar_2"))
-                            )
                           )
                  )
                )
@@ -161,51 +176,68 @@ ui <- fluidPage(
            )
     )
   )
+)
 
 # ----------
 
 server <- function(input, output, session) {
   
+  # When the "filter" button is clicked, more options are available.
   observe({
-    if (is.null(input$filter_position)) {
-      pos <- levels(df$position_5)
-    } else {
-      pos <- input$filter_position
-    }
-    
-    min_pts <- input$filter_points[1]
-    max_pts <- input$filter_points[2]
-    
-    min_ast <- input$filter_assists[1]
-    max_ast <- input$filter_assists[2]
-    
-    min_trb <- input$filter_rebounds[1]
-    max_trb <- input$filter_rebounds[2]
-    
-    min_blk <- input$filter_blocks[1]
-    max_blk <- input$filter_blocks[2]
-    
-    min_tov <- input$filter_turnovers[1]
-    max_tov <- input$filter_turnovers[2]
-    
-    updateSelectizeInput(session, "select_player",
-                         choices = df[(df$position_5 %in% pos) &
-                                        (df$PTS >= min_pts &
-                                           df$PTS <= max_pts) &
-                                        (df$AST >= min_ast &
-                                           df$AST <= max_ast) &
-                                        (df$TRB >= min_trb &
-                                           df$TRB <= max_trb) &
-                                        (df$BLK >= min_blk &
-                                           df$BLK <= max_blk) &
-                                        (df$TOV >= min_tov &
-                                           df$TOV <= max_tov),
-                                      "player"])
+    shinyjs::hide("options_filters_")
+  })
+
+  observeEvent(input$options_filters, {
+    shinyjs::toggle("options_filters_", anim = TRUE)
   })
   
+  pos_ <- reactive({
+    if (is.null(input$filter_position)) {
+      levels(df$position_5)
+    } else {
+      input$filter_position
+    }
+  })
+  
+  pts_ <- reactive({
+    c(input$filter_points[1], input$filter_points[2])
+  })
+  
+  ast_ <- reactive({
+    c(input$filter_assists[1], input$filter_assists[2])
+  })
+  
+  trb_ <- reactive({
+    c(input$filter_rebounds[1], input$filter_rebounds[2])
+  })
+  
+  blk_ <- reactive({
+    c(input$filter_blocks[1], input$filter_blocks[2])
+  })
+  
+  tov_ <- reactive({
+    c(input$filter_turnovers[1], input$filter_turnovers[2])
+  })
+  
+  df_filter <- reactive({
+    df[(df$position_5 %in% pos_()) &
+         (df$PTS >= pts_()[[1]] & df$PTS <= pts_()[[2]]) &
+         (df$AST >= ast_()[[1]] & df$AST <= ast_()[[2]]) &
+         (df$TRB >= trb_()[[1]] & df$TRB <= trb_()[[2]]) &
+         (df$BLK >= blk_()[[1]] & df$BLK <= blk_()[[2]]) &
+         (df$TOV >= tov_()[[1]] & df$TOV <= tov_()[[2]]), ]
+  })
+
+  observe(
+    updateSelectizeInput(session, "select_player",
+                         choices = df_filter()[, "player"])
+  )
+
   observeEvent(input$random, {
     updateSelectizeInput(session, "select_player",
-                         selected = sample(df$player, sample(1:5, 1)))
+                         selected = sample(df_filter()[, "player"],
+                                           sample(1:min(5, nrow(df_filter())),
+                                                  1)))
   })
   
   observeEvent(input$reset_filters, {
@@ -247,7 +279,7 @@ server <- function(input, output, session) {
         ylab("") +
         theme_simple() +
         theme(legend.title = element_blank(), legend.position = "bottom")
-        
+      
       
       g2 <- data_to_plot %>%
         filter(variable %in% c("X2P_p", "X3P_p", "FG_p", "FT_p")) %>%
@@ -263,16 +295,9 @@ server <- function(input, output, session) {
         ylab("") +
         theme_simple() +
         theme(legend.position = "none")
-
-      g_legend <- function(a.gplot) {
-        tmp <- ggplot_gtable(ggplot_build(a.gplot))
-        leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
-        legend <- tmp$grobs[[leg]]
-        return(legend)
-        }
       
-      grid.arrange(arrangeGrob(g1 + theme(legend.position = "none"), 
-                               g2, nrow = 1), 
+      grid.arrange(arrangeGrob(g1 + theme(legend.position = "none"),
+                               g2, nrow = 1),
                    g_legend(g1), nrow = 2, heights = c(10, 1))
     }
   })
@@ -297,7 +322,7 @@ server <- function(input, output, session) {
       col2rgb(ggplot_colors(n = length(input$select_player)))
     }
   })
-
+  
   output$radar_1 <- renderChartJSRadar({
     if (is.null(input$select_player)) {
       return(NULL)
@@ -314,14 +339,14 @@ server <- function(input, output, session) {
     if (is.null(input$select_player)) {
       return(NULL)
     } else {
-    chartJSRadar(scores = df_radar() %>%
-                   filter(Label %in% c("X2P_p", "X3P_p", "FG_p", "FT_p")) %>%
-                   select(order(names(.)), -Label), 
-                 labs = c("2P%", "3P%", "FG%", "FT%"),
-                 showToolTipLabel = TRUE, colMatrix = cols(), maxScale = 1,
-                 scaleStartValue = 0, scaleStepWidth = 0.25)
-      }
-    })
+      chartJSRadar(scores = df_radar() %>%
+                     filter(Label %in% c("X2P_p", "X3P_p", "FG_p", "FT_p")) %>%
+                     select(order(names(.)), -Label), 
+                   labs = c("2P%", "3P%", "FG%", "FT%"),
+                   showToolTipLabel = TRUE, colMatrix = cols(), maxScale = 1,
+                   scaleStartValue = 0, scaleStepWidth = 0.25)
+    }
+  })
 }
 
 shinyApp(ui = ui, server = server)
