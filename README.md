@@ -137,6 +137,7 @@ I made a small app which can be used to compare up to five players (beyond that 
 
 An example with the new Big Three:
 
-![app.png](/app/app.png?raw=true)
+![app_1.png](/app/app_1.png?raw=true)
+![app_2.png](/app/app_2.png?raw=true)
 
 If you want to give it a try, the app is available on [shinyapps.io](https://thoera.shinyapps.io/nba_all_stars/).
